@@ -1,17 +1,25 @@
-from Tkinter import *
-import time
-import os
-
+from tkinter import *
 root = Tk()
-
-frames = [PhotoImage(file='test.gif',format = 'gif -index %i' %(i)) for i in range(10)]
-
+frames=[]
+i=0
+try:
+    while True:
+        frames.append(PhotoImage(file='load.gif',format = 'gif -index '+str(i) ))
+        i+=1
+except:
+    pass
 def update(ind):
-
-    frame = frames[ind]
-    ind += 1
-    label.configure(image=frame)
-    root.after(100, update, ind)
+    try:
+        frame = frames[ind]
+        ind += 1
+        label.configure(image=frame)
+        root.after(100, update, ind)
+    except IndexError:
+        ind=0
+        frame = frames[ind]
+        ind += 1
+        label.configure(image=frame)
+        root.after(100, update, ind)
 label = Label(root)
 label.pack()
 root.after(0, update, 0)
