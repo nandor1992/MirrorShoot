@@ -8,7 +8,7 @@ from threading import Timer
 import threading
 if os.name == 'posix':
     import picamera
-import RPi.GPIO as GPIO
+    import RPi.GPIO as GPIO
 
 class App(QWidget):
     def __init__(self):
@@ -20,13 +20,14 @@ class App(QWidget):
         self.width = 320
         self.height = 200
         self.setAutoFillBackground(True)
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(4, GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(17, GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(4,GPIO.FALLING)
-        GPIO.add_event_callback(4, self.gpio_callback)
-        GPIO.add_event_detect(17,GPIO.RISING)
-        GPIO.add_event_callback(17, self.gpio_callback2)
+        if os.name == 'posix':
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(4, GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(17, GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+            GPIO.add_event_detect(4,GPIO.FALLING)
+            GPIO.add_event_callback(4, self.gpio_callback)
+            GPIO.add_event_detect(17,GPIO.RISING)
+            GPIO.add_event_callback(17, self.gpio_callback2)
         self.initUI()
 
     def initUI(self):
@@ -51,7 +52,7 @@ class App(QWidget):
         diff=max(self.width,self.height)/8
         self.button.move(self.width/2-size/2-diff, self.height/2-size/2+diff)
         self.button.setIcon(QIcon('photo.png'))
-        self. button.setIconSize(QSize(size, size))
+        self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(QRect(self.width/2-size/2-diff, self.height/2-size/2+diff*2, size+20, size+20))
         self.button.clicked.connect(self.on_click)
         self.button.setStyleSheet(self.bstyle)
