@@ -1,43 +1,30 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-"""
-ZetCode PyQt5 tutorial
-
-This example shows a tooltip on
-a window and a button.
-
-author: Jan Bodnar
-website: zetcode.com
-last edited: January 2015
-"""
-
 import sys
 from PyQt5.QtWidgets import (QWidget, QToolTip,
                              QPushButton, QApplication)
-from PyQt5 import QtGui,QtCore
-
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import pyqtSlot
 
 class Example(QWidget):
     def __init__(self):
         super().__init__()
-
         self.initUI()
 
     def initUI(self):
-        QToolTip.setFont(QtGui.QFont('SansSerif', 10))
-
-        self.setToolTip('This is a <b>QWidget</b> widget')
-
         btn = QPushButton('Button', self)
-        btn.setIcon(QtGui.QIcon('off.png'))
-        btn.setIconSize(QtCore.QSize(130, 130))
-        btn.setGeometry(QtCore.QRect(50, 50, 130, 130))
-        btn.setToolTip('This is a <b>QPushButton</b> widget')
+        btn.move(50, 50)
+        btn.clicked.connect(self.conBut)
+        btn.pressed.connect(self.conBut2)
         self.setGeometry(300, 300, 300, 200)
         self.setWindowTitle('Tooltips')
         self.show()
 
+    @pyqtSlot()
+    def conBut(self):
+        print("Button")
+
+    @pyqtSlot()
+    def conBut2(self):
+        print("Button2")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

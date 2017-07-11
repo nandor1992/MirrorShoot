@@ -17,6 +17,7 @@ class App(QWidget):
         self.widget=self
         self.left = 10
         self.top = 10
+        self.lastTrigger=time.time()
         self.width = 320
         self.height = 200
         self.setAutoFillBackground(True)
@@ -54,9 +55,9 @@ class App(QWidget):
         self.button.setIcon(QIcon('photo.png'))
         self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(QRect(self.width/2-size/2-diff, self.height/2-size/2+diff*2, size+20, size+20))
-        self.button.clicked.connect(self.on_click)
+        self.button.clicked.connect(self.photo_click)
+        self.button.pressed.connect(self.photo_pressed)
         self.button.setStyleSheet(self.bstyle)
-        self.button.setFlat(True)
         
         #Button Exity
         self.button2 = QPushButton( self)
@@ -66,7 +67,8 @@ class App(QWidget):
         self.button2.setIcon(QIcon('off.png'))
         self.button2.setIconSize(QSize(size, size))
         self.button2.setGeometry(QRect(self.width/2-size/2+diff, self.height/2-size/2+diff*2, size+20, size+20))
-        self.button2.clicked.connect(self.on_click2)
+        self.button2.clicked.connect(self.close_click)
+        self.button2.pressed.connect(self.close_pressed)
         self.button2.setStyleSheet(self.bstyle)
         self.button2.setFlat(True)
 
@@ -76,7 +78,7 @@ class App(QWidget):
         self.sense=QLabel('Nothing to Sense',self)
         self.sense.setStyleSheet("background: transparent;color:white;font-size:36pt")
         width = self.sense.fontMetrics().boundingRect(self.sense.text()).width()
-        self.sense.move(self.width / 2 - width/2, 200)
+        self.sense.move(self.width / 2 - 220, 200)
         self.sense.update()
 
         #Show
@@ -84,15 +86,20 @@ class App(QWidget):
         self.showFullScreen()
 
     def gpio_callback(self,channel):
-        self.sense.setText('Proximity Sense')
-        width = self.sense.fontMetrics().boundingRect(self.sense.text()).width()
-        self.sense.move(self.width / 2 - width/2, 200)
-        self.sense.update()
+        if time.time() > self.lastTrigger + 5:
+            self.lastTrigger=time.time()
+            self.sense.setText('Proximity Sense')
+            width = self.sense.fontMetrics().boundingRect(self.sense.text()).width()
+            self.sense.move(self.width / 2 - width/2, 200)
+            self.sense.update()
+
     def gpio_callback2(self,channel):
-        self.sense.setText('PiR Sense')
-        width = self.sense.fontMetrics().boundingRect(self.sense.text()).width()
-        self.sense.move(self.width / 2 - width/2, 200)
-        self.sense.update()
+        if time.time() > self.lastTrigger + 5:
+            self.lastTrigger=time.time()
+            self.sense.setText('PiR Sense')
+            width = self.sense.fontMetrics().boundingRect(self.sense.text()).width()
+            self.sense.move(self.width / 2 - width/2, 200)
+            self.sense.update()
 
     def takePicture(self):
         if os.name == 'posix':
@@ -100,6 +107,8 @@ class App(QWidget):
             camera.resolution = (1920, 1080)
             camera.capture("test_image.jpg")
             camera.close()
+        else:
+            time.sleep(2)
         self.movie.stop()
         self.moviee.hide()
         pixmap = QPixmap("test_image.jpg")
@@ -119,14 +128,15 @@ class App(QWidget):
         self.moviee.setGeometry(
             QRect(self.width / 2 - size / 2, self.height / 2 - size / 2 - diff, size + 20, size + 20))
         self.moviee.setAttribute(Qt.WA_TranslucentBackground)
-        self.moviee.mouseReleaseEvent=self.on_click3
+        self.moviee.mouseReleaseEvent=self.gif_click
         # self.movie.start
 
 
 
     @pyqtSlot()
-    def on_click(self):
-        print("Qlabel")
+    def photo_click(self):
+        print("PyQt5 button1 click")
+        self.button.setIcon(QIcon('photo.png'))
         self.image.hide()
         self.t1=threading.Thread(target=self.takePicture,args=[])
         self.t1.start()
@@ -134,11 +144,21 @@ class App(QWidget):
         self.movie.start()
 
     @pyqtSlot()
-    def on_click2(self):
+    def close_click(self):
         print('PyQt5 button2 click')
         self.close()
 
-    def on_click3(self,event):
+    @pyqtSlot()
+    def photo_pressed(self):
+        print('PyQt5 button1 pressed')
+        self.button.setIcon(QIcon('photo down.png'))
+
+    @pyqtSlot()
+    def close_pressed(self):
+        print('PyQt5 button2 pressed')
+        self.button2.setIcon(QIcon('off_down.png'))
+
+    def gif_click(self,event):
         print('PyQt5 Gif Click')
 
 
