@@ -10,7 +10,7 @@ if os.name == 'posix':
     import picamera
     import RPi.GPIO as GPIO
 
-class App(QWidget):
+class PictureApp(QWidget):
     def __init__(self):
         super().__init__()
         self.title = 'Nandor Magic Mirror'
@@ -82,7 +82,6 @@ class App(QWidget):
         self.sense.update()
 
         #Show
-        self.show()
         self.showFullScreen()
 
     def gpio_callback(self,channel):
@@ -164,5 +163,5 @@ class App(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = App()
+    ex = PictureApp()
     sys.exit(app.exec_())

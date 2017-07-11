@@ -1,18 +1,25 @@
 import sys
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QStackedWidget
-from pyqt_base import App
-app = QApplication(sys.argv)
+from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QStackedWidget, QWidget
+from Testing_Pi.pyqt_base import PictureApp
 
+app = QApplication(sys.argv)
+ex = PictureApp()
 window = QMainWindow()
+window.setWindowTitle("Title")
+left = 10
+top = 10
+width = 320
+height = 200
+window.setGeometry(left, top, width,height)
+window.setStyleSheet("background-color:black;")
 stack = QStackedWidget(parent=window)
 label1 = QLabel('label1')
-label2 = App()
+stack.addWidget(ex)
 stack.addWidget(label1)
-stack.addWidget(label2)
 print('current', stack.currentIndex())
-window.show()
+window.showFullScreen()
 
 def next():
       stack.setCurrentIndex(stack.currentIndex()+1)
