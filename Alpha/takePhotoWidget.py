@@ -5,10 +5,14 @@ from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer
 from tkinter import *
 import time
 import threading
+import datetime
+from PIL import Image
 
 if os.name == 'posix':
     import picamera
     import RPi.GPIO as GPIO
+elif os.name =='nt':
+    import cv2
 
 class PictureApp(QWidget):
     def __init__(self,parent,comm):
@@ -28,7 +32,7 @@ class PictureApp(QWidget):
         self.Idle_timer=15000
         # Add image
         self.image = QLabel(self)
-        pixmap = QPixmap("../Resource/Photo/test_image.jpg")
+        pixmap = QPixmap("../Resource/Photo/show.jpg")
         pixmap.scaledToHeight(self.height)
         self.image.setPixmap(pixmap)
         self.image.hide()
@@ -105,13 +109,35 @@ class PictureApp(QWidget):
             camera = picamera.PiCamera()
             camera.resolution = (2592, 1944)
             camera.rotation = 90
-            camera.capture("../Resource/Photo/test_image.jpg")
+            name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".jpg"
+            camera.capture(name)
             camera.close()
+            correctionVal = 0.1
+            img_file = Image.open(name)
+            width, height = img_file.size
+            img_file_white = Image.new("RGB", (width, height), "white")
+            img_blended = Image.blend(img_file, img_file_white, correctionVal)
+            img_blended.save("../Resource/Photo/show.jpg")
+        elif os.name =='nt':
+            cap = cv2.VideoCapture(0)
+            ret, frame = cap.read()
+            if ret!=False:
+                name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+                cv2.imwrite(name,frame)
+                correctionVal = 0.1
+                img_file = Image.open(name)
+                width, height = img_file.size
+                img_file_white = Image.new("RGB", (width, height), "white")
+                img_blended = Image.blend(img_file, img_file_white, correctionVal)
+                img_blended.save("../Resource/Photo/show.jpg")
+            else:
+                time.sleep(2)
+            cap.release()
         else:
             time.sleep(2)
+        pixmap = QPixmap("../Resource/Photo/show.jpg")
         self.movie.stop()
         self.moviee.hide()
-        pixmap = QPixmap("../Resource/Photo/test_image.jpg")
         pixmap = pixmap.scaledToWidth(self.width)
         self.image.move(0, self.height / 2 - pixmap.height() / 2)
         self.image.setPixmap(pixmap)
