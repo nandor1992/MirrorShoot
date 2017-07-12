@@ -70,18 +70,21 @@ class IdleApp(QWidget):
 
     def timer2_(self):
         self.timer.start(self.gif_timer)
+        self.lastTrigger=time.time()
         self.movie.start()
         self.main_timer.stop()
 
     def gpio_callback(self, channel):
-        if time.time() > self.lastTrigger + 5:
+        if time.time() > self.lastTrigger + self.Delay_timer/1000:
             self.lastTrigger = time.time()
+            self.movie.jumpToFrame(0)
             self.movie.start()
             self.timer.start(self.gif_timer)
 
     def gpio_callback2(self, channel):
-        if time.time() > self.lastTrigger + 5:
+        if time.time() > self.lastTrigger + self.Delay_timer/1000:
             self.lastTrigger = time.time()
+            self.movie.jumpToFrame(0)
             self.movie.start()
             self.timer.start(self.gif_timer)
 
