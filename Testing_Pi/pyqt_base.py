@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel,QMainWindow
 from PyQt5.QtGui import QIcon,QMovie,QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize, QRect,Qt
 from tkinter import *
@@ -128,6 +128,7 @@ class PictureApp(QWidget):
             QRect(self.width / 2 - size / 2, self.height / 2 - size / 2 - diff, size + 20, size + 20))
         self.moviee.setAttribute(Qt.WA_TranslucentBackground)
         self.moviee.mouseReleaseEvent=self.gif_click
+        self.movie.timerEvent()
         # self.movie.start
 
 
@@ -163,5 +164,6 @@ class PictureApp(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = PictureApp()
+    window = QMainWindow()
+    ex = PictureApp(parent=window)
     sys.exit(app.exec_())
