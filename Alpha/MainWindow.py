@@ -1,11 +1,18 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget
 from PyQt5.QtCore import pyqtSignal, QObject
-from Alpha.helloWidget import IdleApp
-from Alpha.takePhotoWidget import PictureApp
-
+if sys.version_info >(2,5):
+    from Alpha.helloWidget import IdleApp
+    from Alpha.takePhotoWidget import PictureApp
+else:
+    from helloWidget import IdleApp
+    from takePhotoWidget import PictureApp
 class Communicate(QObject):
-    takePicture = pyqtSignal()
+    goToPicture = pyqtSignal()
+    goToMain = pyqtSignal()
+    goToReview = pyqtSignal()
+    goToList = pyqtSignal()
+    goToIndividual = pyqtSignal()
     timeout = pyqtSignal()
     exit = pyqtSignal()
 
@@ -20,8 +27,9 @@ class App(QMainWindow):
         self.c = Communicate()
 
         #Idle Widget
-        self.c.takePicture.connect(self.takePic)
+        self.c.goToPicture.connect(self.takePic)
         self.idle = IdleApp(self, self.c)
+        self.idle.active=True
 
         #Photo  Widget
         self.c.exit.connect(self.close)

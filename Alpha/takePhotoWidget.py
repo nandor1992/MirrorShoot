@@ -20,7 +20,8 @@ class PictureApp(QWidget):
         self.title = 'Nandor Magic Mirror'
         self.lastTrigger = time.time()
         self.comm=comm
-        self.comm.takePicture.connect(self.restart)
+        self.comm.goToPicture.connect(self.begin)
+        self.active=False
         self.initUI()
 
     def initUI(self):
@@ -29,7 +30,7 @@ class PictureApp(QWidget):
         self.height = self.root.winfo_screenheight()
         self.root.destroy()
         self.Gif_timer=7000
-        self.Idle_timer=15000
+        self.Idle_timer=30000
         # Add image
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Photo/show.jpg")
@@ -59,7 +60,10 @@ class PictureApp(QWidget):
         size = max(self.width, self.height) / 6
         diff = max(self.width, self.height) / 8
         self.button2.move(self.width / 2 - size / 2 + diff, self.height / 2 - size / 2 + diff)
-        self.button2.setIcon(QIcon('../Resource/Image/off.png'))
+        self.Icon_back_active=QIcon()
+        self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'),mode=QIcon.Disabled)
+        self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Active)
+        self.button2.setIcon(self.Icon_back_active)
         self.button2.setIconSize(QSize(size, size))
         self.button2.setGeometry(
             QRect(self.width / 2 - size / 2 + diff, self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
@@ -75,14 +79,38 @@ class PictureApp(QWidget):
         # Show
         self.showFullScreen()
 
+    def begin(self):
+        self.main_timer.start()
+        self.image.hide()
+        self.movie.jumpToFrame(0)
+        self.movie.stop()
+        self.movie2.jumpToFrame(0)
+        self.movie2.stop()
+        self.moviee.hide()
+        self.button.setEnabled(True)
+        self.button2.setEnabled(True)
+        self.active=True
+
+    def out(self):
+        self.active=False
+        self.main_timer.stop()
+        self.image.hide()
+        self.movie.jumpToFrame(0)
+        self.movie.stop()
+        self.movie2.jumpToFrame(0)
+        self.movie2.stop()
+        self.moviee.hide()
+        if hasattr(self, 't2'):
+            self.t2.stop()
+
     def restart(self):
         self.image.hide()
         self.main_timer.start(self.Idle_timer)
 
     def timeout_timer(self):
         if  self.button.isEnabled():
+            self.out()
             self.comm.timeout.emit()
-            self.main_timer.stop()
         else:
             self.main_timer.start(self.Idle_timer)
 
@@ -105,51 +133,53 @@ class PictureApp(QWidget):
         # self.movie.start
 
     def takePicture(self):
-        if os.name == 'posix':
-            camera = picamera.PiCamera()
-            camera.resolution = (2592, 1944)
-            camera.rotation = 90
-            name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".jpg"
-            camera.capture(name)
-            camera.close()
-            correctionVal = 0.1
-            img_file = Image.open(name)
-            width, height = img_file.size
-            img_file_white = Image.new("RGB", (width, height), "white")
-            img_blended = Image.blend(img_file, img_file_white, correctionVal)
-            img_blended.save("../Resource/Photo/show.jpg")
-        elif os.name =='nt':
-            cap = cv2.VideoCapture(0)
-            ret, frame = cap.read()
-            if ret!=False:
-                name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
-                cv2.imwrite(name,frame)
+        if self.active:
+            self.button2.setEnabled(False)
+            if os.name == 'posix':
+                camera = picamera.PiCamera()
+                camera.resolution = (2592, 1944)
+                camera.rotation = 90
+                name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".jpg"
+                camera.capture(name)
+                camera.close()
                 correctionVal = 0.1
                 img_file = Image.open(name)
                 width, height = img_file.size
                 img_file_white = Image.new("RGB", (width, height), "white")
                 img_blended = Image.blend(img_file, img_file_white, correctionVal)
                 img_blended.save("../Resource/Photo/show.jpg")
+            elif os.name =='nt':
+                cap = cv2.VideoCapture(0)
+                ret, frame = cap.read()
+                if ret!=False:
+                    name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+                    cv2.imwrite(name,frame)
+                    correctionVal = 0.1
+                    img_file = Image.open(name)
+                    width, height = img_file.size
+                    img_file_white = Image.new("RGB", (width, height), "white")
+                    img_blended = Image.blend(img_file, img_file_white, correctionVal)
+                    img_blended.save("../Resource/Photo/show.jpg")
+                else:
+                    time.sleep(2)
+                cap.release()
             else:
                 time.sleep(2)
-            cap.release()
-        else:
-            time.sleep(2)
-        pixmap = QPixmap("../Resource/Photo/show.jpg")
-        self.movie.stop()
-        self.moviee.hide()
-        pixmap = pixmap.scaledToWidth(self.width)
-        self.image.move(0, self.height / 2 - pixmap.height() / 2)
-        self.image.setPixmap(pixmap)
-        self.image.show()
+            pixmap = QPixmap("../Resource/Photo/show.jpg")
+            self.movie.stop()
+            self.moviee.hide()
+            pixmap = pixmap.scaledToWidth(self.width)
+            self.image.move(0, self.height / 2 - pixmap.height() / 2)
+            self.image.setPixmap(pixmap)
+            self.image.show()
+        self.button2.setEnabled(True)
         self.button.setEnabled(True)
 
     def countdown(self):
         self.movie2.stop()
         self.moviee.setMovie(self.movie)
         self.movie.jumpToFrame(0)
-        t1=threading.Thread(target=self.takePicture,args=[])
-        t1.start()
+        threading.Thread(target=self.takePicture,args=[]).start()
         self.movie.start()
 
     @pyqtSlot()
@@ -159,10 +189,9 @@ class PictureApp(QWidget):
         print("PyQt5 button1 click")
         self.button.setIcon(self.Icon_photo_active)
         self.image.hide()
-        if not hasattr(self,'t2'):
-            self.t2 = QTimer(self)
-            self.t2.timeout.connect(self.countdown)
-            self.t2.singleShot=True
+        self.t2 = QTimer(self)
+        self.t2.timeout.connect(self.countdown)
+        self.t2.setSingleShot(True)
         self.t2.start(self.Gif_timer)  # changed timer timeout to 1s
         self.moviee.setMovie(self.movie2)
         self.movie2.jumpToFrame(0)
@@ -171,10 +200,10 @@ class PictureApp(QWidget):
 
     @pyqtSlot()
     def close_click(self):
-        self.main_timer.stop()
         print('PyQt5 button2 click')
-        self.comm.exit.emit()
-        self.close()
+        self.button2.setIcon(self.Icon_back_active)
+        self.out()
+        self.comm.timeout.emit()
 
     @pyqtSlot()
     def photo_pressed(self):
@@ -184,7 +213,7 @@ class PictureApp(QWidget):
     @pyqtSlot()
     def close_pressed(self):
         print('PyQt5 button2 pressed')
-        self.button2.setIcon(QIcon('../Resource/Image/off_down.png'))
+        self.button2.setIcon(QIcon('../Resource/Image/back_down.png'))
 
     def gif_click(self, event):
         print('PyQt5 Gif Click')

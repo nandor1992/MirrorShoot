@@ -15,9 +15,10 @@ class IdleApp(QWidget):
         self.title = 'Nandor Magic Mirror'
         self.lastTrigger = time.time()
         self.comm=comm
-        self.Delay_timer=10000
+        self.Delay_timer=5000
         self.gif_timer=1800
-        comm.timeout.connect(self.restart)
+        self.active=False
+        comm.timeout.connect(self.begin)
         if os.name == 'posix':
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -28,11 +29,19 @@ class IdleApp(QWidget):
             GPIO.add_event_callback(17, self.gpio_callback2)
         self.initUI()
 
-    def restart(self):
+    def begin(self):
         self.main_timer.start()
         self.movie.stop()  # those lines
-        self.movie.jumpToFrame(0)
         self.timer.stop()
+        self.movie.jumpToFrame(0)
+        self.active=True
+
+    def out(self):
+        self.active=False
+        self.movie.jumpToFrame(0)
+        self.movie.stop()
+        self.timer.stop()
+        self.main_timer.stop()
 
     def initUI(self):
         self.root = Tk()
@@ -75,14 +84,14 @@ class IdleApp(QWidget):
         self.main_timer.stop()
 
     def gpio_callback(self, channel):
-        if time.time() > self.lastTrigger + self.Delay_timer/1000:
+        if time.time() > self.lastTrigger + self.Delay_timer/1000 and self.active:
             self.lastTrigger = time.time()
             self.movie.jumpToFrame(0)
             self.movie.start()
             self.timer.start(self.gif_timer)
 
     def gpio_callback2(self, channel):
-        if time.time() > self.lastTrigger + self.Delay_timer/1000:
+        if time.time() > self.lastTrigger + self.Delay_timer/1000 and self.active:
             self.lastTrigger = time.time()
             self.movie.jumpToFrame(0)
             self.movie.start()
@@ -90,7 +99,8 @@ class IdleApp(QWidget):
 
     def gif_click(self, event):
         print('PyQt5 Gif Click')
-        self.comm.takePicture.emit()
+        self.out()
+        self.comm.goToPicture.emit()
 
 
 class App(QMainWindow):
