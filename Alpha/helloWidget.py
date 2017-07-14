@@ -59,7 +59,7 @@ class IdleApp(QWidget):
         self.moviee.setGeometry(QRect(self.width / 2 - size/2-150, self.height / 2 - size / 2, size+300,size))
         self.moviee.setAttribute(Qt.WA_TranslucentBackground)
         self.moviee.mouseReleaseEvent = self.gif_click
-
+        self.moviee.show()
         #Timer
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timer_)
