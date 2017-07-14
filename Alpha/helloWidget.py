@@ -15,7 +15,7 @@ class IdleApp(QWidget):
         self.title = 'Nandor Magic Mirror'
         self.lastTrigger = time.time()
         self.comm=comm
-        self.Delay_timer=5000
+        self.Delay_timer=30000
         self.gif_timer=1800
         self.active=False
         comm.timeout.connect(self.begin)
@@ -83,14 +83,14 @@ class IdleApp(QWidget):
         self.main_timer.stop()
 
     def gpio_callback(self, channel):
-        if time.time() > self.lastTrigger + self.Delay_timer/1000 and self.active:
+        if time.time() > self.lastTrigger + self.Delay_timer/5000 and self.active:
             self.lastTrigger = time.time()
             self.movie.jumpToFrame(0)
             self.movie.start()
             self.timer.start(self.gif_timer)
 
     def gpio_callback2(self, channel):
-        if time.time() > self.lastTrigger + self.Delay_timer/1000 and self.active:
+        if time.time() > self.lastTrigger + self.Delay_timer/5000 and self.active:
             self.lastTrigger = time.time()
             self.movie.jumpToFrame(0)
             self.movie.start()
