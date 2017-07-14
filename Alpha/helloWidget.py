@@ -100,7 +100,7 @@ class IdleApp(QWidget):
     def gif_click(self, event):
         print('PyQt5 Gif Click')
         self.out()
-        self.comm.goToPicture.emit()
+        self.comm.goToMain.emit()
 
 
 class App(QMainWindow):

@@ -36,6 +36,7 @@ class PictureApp(QWidget):
         pixmap = QPixmap("../Resource/Photo/show.jpg")
         pixmap.scaledToHeight(self.height)
         self.image.setPixmap(pixmap)
+        self.image.mouseReleaseEvent=self.image_click
         self.image.hide()
 
         self.bstyle = "QPushButton{background: transparent;outline: none;border: none}"
@@ -50,14 +51,14 @@ class PictureApp(QWidget):
         self.button.setIcon(self.Icon_photo_active)
         self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(
-            QRect(self.width / 2 - size / 2 - diff, self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
+            QRect(self.width / 2 - size / 2, self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
         self.button.clicked.connect(self.photo_click)
         self.button.pressed.connect(self.photo_pressed)
         self.button.setStyleSheet(self.bstyle)
 
         # Button Exity
         self.button2 = QPushButton(self)
-        size = max(self.width, self.height) / 6
+        size = max(self.width, self.height) / 15
         diff = max(self.width, self.height) / 8
         self.button2.move(self.width / 2 - size / 2 + diff, self.height / 2 - size / 2 + diff)
         self.Icon_back_active=QIcon()
@@ -66,7 +67,7 @@ class PictureApp(QWidget):
         self.button2.setIcon(self.Icon_back_active)
         self.button2.setIconSize(QSize(size, size))
         self.button2.setGeometry(
-            QRect(self.width / 2 - size / 2 + diff, self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
+            QRect(self.width / 5 - size / 2 , self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
         self.button2.clicked.connect(self.close_click)
         self.button2.pressed.connect(self.close_pressed)
         self.button2.setStyleSheet(self.bstyle)
@@ -103,9 +104,6 @@ class PictureApp(QWidget):
         if hasattr(self, 't2'):
             self.t2.stop()
 
-    def restart(self):
-        self.image.hide()
-        self.main_timer.start(self.Idle_timer)
 
     def timeout_timer(self):
         if  self.button.isEnabled():
@@ -174,6 +172,8 @@ class PictureApp(QWidget):
             self.image.show()
         self.button2.setEnabled(True)
         self.button.setEnabled(True)
+        self.out()
+        self.comm.goToReview.emit()
 
     def countdown(self):
         self.movie2.stop()
@@ -203,7 +203,7 @@ class PictureApp(QWidget):
         print('PyQt5 button2 click')
         self.button2.setIcon(self.Icon_back_active)
         self.out()
-        self.comm.timeout.emit()
+        self.comm.goToMain.emit()
 
     @pyqtSlot()
     def photo_pressed(self):
@@ -217,6 +217,10 @@ class PictureApp(QWidget):
 
     def gif_click(self, event):
         print('PyQt5 Gif Click')
+
+    def image_click(self,event):
+        self.out()
+        self.comm.goToReview.emit()
 
 
 class App(QMainWindow):
