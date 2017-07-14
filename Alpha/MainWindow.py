@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget
 from PyQt5.QtCore import pyqtSignal, QObject
-if sys.version_info >(2,5):
+if sys.version_info >(3,5):
     from Alpha.helloWidget import IdleApp
     from Alpha.takePhotoWidget import PictureApp
     from Alpha.menuWidget import MenuApp
