@@ -136,11 +136,10 @@ class PictureApp(QWidget):
             if os.name == 'posix':
                 camera = picamera.PiCamera()
                 camera.resolution = (2592, 1944)
-                camera.rotation = 90
                 name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".jpg"
                 camera.capture(name)
                 camera.close()
-                correctionVal = 0.1
+                correctionVal = 0.2
                 img_file = Image.open(name)
                 width, height = img_file.size
                 img_file_white = Image.new("RGB", (width, height), "white")
