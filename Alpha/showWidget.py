@@ -104,8 +104,8 @@ class showApp(QWidget):
         self.image.show()
         self.main_timer.start(self.Idle_timer)
         self.button.setEnabled(True)
-        #self.button2.setEnabled(True)
-        #self.button3.setEnabled(True)
+        self.button2.setEnabled(True)
+        self.button3.setEnabled(True)
         self.textLabel.hide()
 
     def out(self):
