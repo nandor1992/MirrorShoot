@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget
 from PyQt5.QtCore import pyqtSignal, QObject, Qt
 if sys.version_info >(3,5):
@@ -93,6 +93,7 @@ class App(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-	app.setOverrideCursor(Qt.WaitCursor)
+    if os.name == 'posix':
+        app.setOverrideCursor(Qt.BlankCursor)
     ex = App()
     sys.exit(app.exec_())
