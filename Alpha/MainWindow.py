@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject, Qt
 if sys.version_info >(3,5):
     from Alpha.helloWidget import IdleApp
     from Alpha.takePhotoWidget import PictureApp
@@ -93,5 +93,6 @@ class App(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+	app.setOverrideCursor(Qt.WaitCursor)
     ex = App()
     sys.exit(app.exec_())
