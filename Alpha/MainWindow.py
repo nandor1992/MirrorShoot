@@ -31,7 +31,7 @@ class App(QMainWindow):
         #Basics
         self.title = 'Nandor Mirror'
         self.setWindowTitle(self.title)
-        self.setStyleSheet("background-color:black;")
+        self.setStyleSheet("background-color:blue;")
         self.stack = QStackedWidget(parent=self)
         self.c = Communicate()
 

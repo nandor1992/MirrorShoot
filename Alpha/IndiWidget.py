@@ -24,12 +24,14 @@ class IndiApp(QWidget):
         self.height = self.root.winfo_screenheight()
         self.root.destroy()
 
-        self.textLabel = QLabel(self)
-        self.textLabel.setText("...Nothing")
-        self.textLabel.setStyleSheet(
-            "QLabel{background: transparent;outline: none;border: none;color:white; font-size:42pt}")
-        self.textLabel.setGeometry(QRect(self.width / 2 - 100, self.height / 2 - 80, 300, 80))
-        self.textLabel.hide()
+        # Add image
+        self.image = QLabel(self)
+        pixmap = QPixmap("../Resource/Photo/show.jpg")
+        pixmap.scaledToWidth(self.width)
+        self.image.setGeometry(
+            QRect(0,0,self.width,self.height-200))
+        self.image.setPixmap(pixmap)
+        self.image.hide()
 
         self.bstyle = "QPushButton{background: transparent;outline: none;border: none}"
         # Button    border-width: 5px;padding: 5px;border-style:solid;border-radius: 5px
@@ -56,15 +58,16 @@ class IndiApp(QWidget):
     def begin(self,param1):
         print(param1)
         self.active=True
-        self.textLabel.setGeometry(QRect(self.width / 2 - 120, self.height / 2 - 80, 300, 100))
-        self.textLabel.setText(param1)
-        self.textLabel.show()
+        pixmap = QPixmap("../Resource/Photo/"+param1)
+        pixmap=pixmap.scaledToWidth(self.width)
+        self.image.setPixmap(pixmap)
+        self.image.show()
         self.main_timer.start(self.Idle_timer)
 
     def out(self):
         self.active=False
         self.main_timer.stop()
-        self.textLabel.hide()
+        self.image.hide()
 
     def timeout_timer(self):
         self.out()
