@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer,QObject, pyqtSignal
 from tkinter import *
@@ -18,15 +18,21 @@ class MenuApp(QWidget):
         self.active=False
         self.initUI()
 
-    def initUI(self):
-        self.root = Tk()
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
-        self.root.destroy()
+    def initScreen(self):
+        screen2 = QDesktopWidget().screenGeometry(1)
+        screen1 = QDesktopWidget().screenGeometry(0)
+        if screen2.right()>0:
+            self.width = screen2.right()-screen2.left()
+            self.height = screen2.bottom()
+        else:
+            self.width = screen1.right()
+            self.height = screen1.bottom()
 
+    def initUI(self):
+        self.initScreen()
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Image/title.png")
-        pixmap = pixmap.scaledToWidth(self.width/2)
+        pixmap = pixmap.scaledToWidth(self.width/4*3)
         self.image.move(self.width/2-pixmap.width()/2, self.height / 4 - pixmap.height())
         self.image.setPixmap(pixmap)
         self.image.show()
@@ -37,7 +43,7 @@ class MenuApp(QWidget):
         self.button = QPushButton(self)
         self.Icon_photo_active=QIcon()
         pixmap = QPixmap("../Resource/Image/take_pic.png")
-        pixmap = pixmap.scaledToWidth(self.width / 4)
+        pixmap = pixmap.scaledToWidth(self.width / 2)
         self.Icon_photo_active.addPixmap(pixmap,mode=QIcon.Disabled)
         self.Icon_photo_active.addPixmap(pixmap, mode=QIcon.Active)
         self.button.setIcon(self.Icon_photo_active)
@@ -51,7 +57,7 @@ class MenuApp(QWidget):
         self.button2 = QPushButton(self)
         self.Icon_back_active = QIcon()
         pixmap2 = QPixmap("../Resource/Image/list_pic.png")
-        pixmap2 = pixmap2.scaledToWidth(self.width / 4)
+        pixmap2 = pixmap2.scaledToWidth(self.width / 2)
         self.Icon_back_active.addPixmap(pixmap2, mode=QIcon.Disabled)
         self.Icon_back_active.addPixmap(pixmap2, mode=QIcon.Active)
         self.button2.setIcon(self.Icon_back_active)
@@ -68,7 +74,7 @@ class MenuApp(QWidget):
         self.button3 = QPushButton(self)
         self.Icon_back_exit = QIcon()
         pixmap3 = QPixmap("../Resource/Image/off.png")
-        pixmap3 = pixmap3.scaledToWidth(self.width / 10)
+        pixmap3 = pixmap3.scaledToWidth(self.width / 4)
         self.Icon_back_exit.addPixmap(pixmap3, mode=QIcon.Disabled)
         self.Icon_back_exit.addPixmap(pixmap3, mode=QIcon.Active)
         self.button3.setIcon(self.Icon_back_exit)

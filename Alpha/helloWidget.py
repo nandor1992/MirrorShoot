@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget,QLabel, QMainWindow, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QWidget,QLabel, QMainWindow, QStackedWidget,QDesktopWidget
 from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import QRect, Qt, QSize, QTimer
 from tkinter import *
@@ -43,13 +43,18 @@ class IdleApp(QWidget):
         self.timer.stop()
         self.main_timer.stop()
 
+    def initScreen(self):
+        screen2 = QDesktopWidget().screenGeometry(1)
+        screen1 = QDesktopWidget().screenGeometry(0)
+        if screen2.right()>0:
+            self.width = screen2.right()-screen2.left()
+            self.height = screen2.bottom()
+        else:
+            self.width = screen1.right()
+            self.height = screen1.bottom()
+
     def initUI(self):
-        self.root = Tk()
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
-        self.root.destroy()
-
-
+        self.initScreen()
         #Add Gif
         self.moviee = QLabel(self)
         self.movie = QMovie("../Resource/Gif/hello.gif")
@@ -63,14 +68,12 @@ class IdleApp(QWidget):
         #Timer
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timer_)
-        self.timer.start(self.gif_timer)  # changed timer timeout to 1s
-        self.timer.stop()
 
         self.main_timer = QTimer(self)
         self.main_timer.timeout.connect(self.timer2_)
         self.main_timer.start(self.Delay_timer)  # changed timer timeout to 1s
-
-
+        self.movie.start()
+        self.timer.start(self.gif_timer)  # changed timer timeout to 1s
     def timer_(self):
         self.movie.stop()  # those lines
         self.timer.stop()

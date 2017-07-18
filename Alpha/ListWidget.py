@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow, QScrollArea, QGridLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow, QScrollArea, QGridLayout,QDesktopWidget
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer,QObject, pyqtSignal
 from tkinter import *
@@ -20,37 +20,76 @@ class ListApp(QWidget):
         self.active=False
         self.initUI()
 
+    def initScreen(self):
+        screen2 = QDesktopWidget().screenGeometry(1)
+        screen1 = QDesktopWidget().screenGeometry(0)
+        if screen2.right()>0:
+            self.width = screen2.right()-screen2.left()
+            self.height = screen2.bottom()
+        else:
+            self.width = screen1.right()
+            self.height = screen1.bottom()
+
+    def addButton(self,image,size,rect):
+        button=QPushButton(self)
+        Icon_back_active = QIcon()
+        Icon_back_active.addPixmap(QPixmap('../Resource/Image/'+image+'.png'), mode=QIcon.Disabled)
+        Icon_back_active.addPixmap(QPixmap('../Resource/Image/'+image+'.png'), mode=QIcon.Active)
+        button.setIcon(Icon_back_active)
+        button.setIconSize(QSize(size, size))
+        button.setGeometry(rect)
+        button.setStyleSheet(self.bstyle)
+        button.setFlat(True)
+        return[button,Icon_back_active]
+
     def initUI(self):
-        self.root = Tk()
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
-        self.root.destroy()
+        self.initScreen()
         self.bstyle = "QPushButton{background: transparent;outline: none;border: none}"
         # Button    border-width: 5px;padding: 5px;border-style:solid;border-radius: 5px
 
         # Button Exity
-        self.button2 = QPushButton(self)
-        size = max(self.width, self.height) / 6
-        diff = max(self.width, self.height) / 8
-        self.button2.move(self.width / 2 - size / 2 + diff, self.height / 2 - size / 2 + diff)
-        self.Icon_back_active = QIcon()
-        self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Disabled)
-        self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Active)
-        self.button2.setIcon(self.Icon_back_active)
-        self.button2.setIconSize(QSize(size, size))
-        self.button2.setGeometry(
-            QRect(self.width / 2 - size / 2, self.height  - size / 2 - diff , size + 20, size + 20))
+        size = max(self.width, self.height) / 10
+        rect = QRect(size/3, self.height-size - size / 4, size + 20, size + 20)
+        [self.button2,self.Icon_back_active]= self.addButton("back",size,rect)
         self.button2.clicked.connect(self.close_click)
         self.button2.pressed.connect(self.close_pressed)
-        self.button2.setStyleSheet(self.bstyle)
-        self.button2.setFlat(True)
+
+        # Button Up
+        rect=QRect(self.width/2-size/2-10, 20, size + 20, size + 20)
+        [self.button_up,self.Icon_up]= self.addButton("up",size,rect)
+        self.button_up.clicked.connect(self.up_click)
+        self.button_up.pressed.connect(self.up_pressed)
+
+        #Button Down
+        rect=QRect(self.width/2-size/2-10, self.height  - size -size/4*3, size + 20, size + 20)
+        [self.button_down,self.Icon_down]= self.addButton("down",size,rect)
+        self.button_down.clicked.connect(self.down_click)
+        self.button_down.pressed.connect(self.down_pressed)
 
         self.tab1 = QScrollArea(self)
-        self.tab1.setStyleSheet("QScrollArea{background: transparent;outline: none;border: none}")
-        self.tab1.setGeometry(QRect(50,50,self.width-100 ,self.height*0.7))
-        tab1_w=QWidget()
+        self.tab1.setStyleSheet("QScrollArea{background: transparent;outline: none;border: none}"+
+                                    "QScrollBar:vertical{width: 0px; background: transparent;}")
+        self.tab1.setGeometry(QRect(50,230,self.height-230 ,(self.height-230)*0.8))
+        self.updateList()
+        self.tab1.setWidgetResizable(True)
+
+        if self.tab1.verticalScrollBar().maximum() ==0 and self.tab1.verticalScrollBar().minimum()==0:
+            self.button_up.hide()
+            self.button_down.hide()
+
+        self.main_timer = QTimer(self)
+        self.Idle_timer = 30000
+        self.main_timer.timeout.connect(self.timeout_timer)
+        self.main_timer.start(self.Idle_timer)  # changed timer timeout to 1s
+        self.show()
+
+    def reset(self):
+        self.main_timer.start(self.Idle_timer)
+
+    def updateList(self):
+        tab1_w = QWidget()
         tab1_layout = QGridLayout()
-        tab1_layout.setColumnStretch(2, 4)
+        tab1_layout.setColumnStretch(2, 3)
         tab1_w.setLayout(tab1_layout)
         # self.setWidgetResizable(True)
         onlyfiles = [f for f in listdir("../Resource/Photo") if isfile(join("../Resource/Photo", f))]
@@ -60,23 +99,22 @@ class ListApp(QWidget):
             if i!="show.jpg" and i!="test_image.jpg":
                 self.images[i] = QLabel(self)
                 pixmap = QPixmap("../Resource/Photo/"+i)
-                pixmap=pixmap.scaledToWidth((self.width-160)/4)
+                pixmap=pixmap.scaledToWidth((self.width-140)/3)
                 self.images[i].setPixmap(pixmap)
                 self.images[i].mouseReleaseEvent = lambda event, arg=i :self.image_click(arg)
-                tab1_layout.addWidget(self.images[i],int(cnt/4),int(divmod(cnt,4)[1]))
+                tab1_layout.addWidget(self.images[i],int(cnt/3),int(divmod(cnt,3)[1]))
                 cnt += 1
-
         self.tab1.setWidget(tab1_w)
-        self.tab1.setWidgetResizable(True)
-
-        self.main_timer = QTimer(self)
-        self.Idle_timer = 30000
-        self.main_timer.timeout.connect(self.timeout_timer)
-        self.main_timer.start(self.Idle_timer)  # changed timer timeout to 1s
-        self.show()
+        if self.tab1.verticalScrollBar().maximum() ==0 and self.tab1.verticalScrollBar().minimum()==0:
+            self.button_up.hide()
+            self.button_down.hide()
+        else:
+            self.button_up.show()
+            self.button_down.show()
 
     def begin(self):
         self.active=True
+        self.updateList()
         self.main_timer.start(self.Idle_timer)
 
     def out(self):
@@ -86,8 +124,8 @@ class ListApp(QWidget):
 
     def image_click(self,i):
         print("Clicked"+str(i))
+        self.out()
         self.comm.goToIndividual.emit(i)
-
 
     def timeout_timer(self):
         self.out()
@@ -95,15 +133,39 @@ class ListApp(QWidget):
 
     @pyqtSlot()
     def close_click(self):
-        print('PyQt5 button2 click')
         self.button2.setIcon(self.Icon_back_active)
         self.out()
         self.comm.goToMain.emit()
 
     @pyqtSlot()
     def close_pressed(self):
-        print('PyQt5 button2 pressed')
         self.button2.setIcon(QIcon('../Resource/Image/back_down.png'))
+
+    @pyqtSlot()
+    def up_click(self):
+        self.reset()
+        self.tab1.verticalScrollBar().setValue(self.tab1.verticalScrollBar().value() - self.height/10)
+        if self.tab1.verticalScrollBar().minimum() >=self.tab1.verticalScrollBar().value():
+            self.button_up.hide()
+        self.button_down.show()
+        self.button_up.setIcon(self.Icon_up)
+
+    @pyqtSlot()
+    def up_pressed(self):
+        self.button_up.setIcon(QIcon('../Resource/Image/up_down.png'))
+
+    @pyqtSlot()
+    def down_click(self):
+        self.reset()
+        self.tab1.verticalScrollBar().setValue(self.tab1.verticalScrollBar().value() +self.height/10)
+        if self.tab1.verticalScrollBar().maximum() <=self.tab1.verticalScrollBar().value():
+            self.button_down.hide()
+        self.button_up.show()
+        self.button_down.setIcon(self.Icon_down)
+
+    @pyqtSlot()
+    def down_pressed(self):
+        self.button_down.setIcon(QIcon('../Resource/Image/down_down.png'))
 
 
 class Communicate(QObject):

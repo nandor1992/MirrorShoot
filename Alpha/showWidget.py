@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer,QObject, pyqtSignal
 from tkinter import *
@@ -18,11 +18,18 @@ class showApp(QWidget):
         self.active=False
         self.initUI()
 
+    def initScreen(self):
+        screen2 = QDesktopWidget().screenGeometry(1)
+        screen1 = QDesktopWidget().screenGeometry(0)
+        if screen2.right()>0:
+            self.width = screen2.right()-screen2.left()
+            self.height = screen2.bottom()
+        else:
+            self.width = screen1.right()
+            self.height = screen1.bottom()
+
     def initUI(self):
-        self.root = Tk()
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
-        self.root.destroy()
+        self.initScreen()
 
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Photo/show.jpg")
@@ -47,8 +54,8 @@ class showApp(QWidget):
         self.button.setIcon(self.Icon_save)
         self.button.setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.button.setGeometry(
-            QRect(self.width / 4 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 20,
-                  pixmap.height() + 20))
+            QRect(self.width / 4 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 40,
+                  pixmap.height() + 60))
         self.button.clicked.connect(self.save_click)
         self.button.pressed.connect(self.save_pressed)
         self.button.setStyleSheet(self.bstyle)
@@ -63,8 +70,8 @@ class showApp(QWidget):
         self.button2.setIcon(self.Icon_print)
         self.button2.setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.button2.setGeometry(
-            QRect(self.width / 2 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 20,
-                  pixmap.height() + 20))
+            QRect(self.width / 2 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 40,
+                  pixmap.height() + 60))
         self.button2.clicked.connect(self.print_click)
         self.button2.pressed.connect(self.print_pressed)
         self.button2.setStyleSheet(self.bstyle)
@@ -80,8 +87,8 @@ class showApp(QWidget):
         self.button3.setIcon(self.Icon_delete)
         self.button3.setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.button3.setGeometry(
-            QRect(self.width / 4*3 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 20,
-                  pixmap.height() + 20))
+            QRect(self.width / 4*3 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 40,
+                  pixmap.height() + 60))
         self.button3.clicked.connect(self.delete_click)
         self.button3.pressed.connect(self.delete_pressed)
         self.button3.setStyleSheet(self.bstyle)

@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer
 from tkinter import *
@@ -24,11 +24,18 @@ class PictureApp(QWidget):
         self.active=False
         self.initUI()
 
+    def initScreen(self):
+        screen2 = QDesktopWidget().screenGeometry(1)
+        screen1 = QDesktopWidget().screenGeometry(0)
+        if screen2.right()>0:
+            self.width = screen2.right()-screen2.left()
+            self.height = screen2.bottom()
+        else:
+            self.width = screen1.right()
+            self.height = screen1.bottom()
+
     def initUI(self):
-        self.root = Tk()
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
-        self.root.destroy()
+        self.initScreen()
         self.Gif_timer=7000
         self.Idle_timer=30000
         # Add image
@@ -43,15 +50,13 @@ class PictureApp(QWidget):
         # Button    border-width: 5px;padding: 5px;border-style:solid;border-radius: 5px
         self.button = QPushButton(self)
         size = max(self.width, self.height) / 6
-        diff = max(self.width, self.height) / 8
-        self.button.move(self.width / 2 - size / 2 - diff, self.height / 2 - size / 2 + diff)
         self.Icon_photo_active=QIcon()
         self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/photo.png'),mode=QIcon.Disabled)
         self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/photo.png'), mode=QIcon.Active)
         self.button.setIcon(self.Icon_photo_active)
         self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(
-            QRect(self.width / 2 - size / 2, self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
+            QRect(self.width / 2 - size / 2, self.height - size -size/4 , size + 20, size + 20))
         self.button.clicked.connect(self.photo_click)
         self.button.pressed.connect(self.photo_pressed)
         self.button.setStyleSheet(self.bstyle)
@@ -59,15 +64,13 @@ class PictureApp(QWidget):
         # Button Exity
         self.button2 = QPushButton(self)
         size = max(self.width, self.height) / 15
-        diff = max(self.width, self.height) / 8
-        self.button2.move(self.width / 2 - size / 2 + diff, self.height / 2 - size / 2 + diff)
         self.Icon_back_active=QIcon()
         self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'),mode=QIcon.Disabled)
         self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Active)
         self.button2.setIcon(self.Icon_back_active)
         self.button2.setIconSize(QSize(size, size))
         self.button2.setGeometry(
-            QRect(self.width / 5 - size / 2 , self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
+            QRect(self.width / 6 - size / 2 , self.height - 2*size, size + 20, size + 20))
         self.button2.clicked.connect(self.close_click)
         self.button2.pressed.connect(self.close_pressed)
         self.button2.setStyleSheet(self.bstyle)
@@ -139,7 +142,7 @@ class PictureApp(QWidget):
                 name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".jpg"
                 camera.capture(name)
                 camera.close()
-                correctionVal = 0.2
+                correctionVal = 0
                 img_file = Image.open(name)
                 width, height = img_file.size
                 img_file_white = Image.new("RGB", (width, height), "white")
@@ -151,7 +154,7 @@ class PictureApp(QWidget):
                 if ret!=False:
                     name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
                     cv2.imwrite(name,frame)
-                    correctionVal = 0.1
+                    correctionVal = 0
                     img_file = Image.open(name)
                     width, height = img_file.size
                     img_file_white = Image.new("RGB", (width, height), "white")

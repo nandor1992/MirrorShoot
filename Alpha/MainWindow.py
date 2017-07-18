@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget, QDesktopWidget
 from PyQt5.QtCore import pyqtSignal, QObject, Qt
 if sys.version_info >(3,5):
     from Alpha.helloWidget import IdleApp
@@ -31,7 +31,10 @@ class App(QMainWindow):
         #Basics
         self.title = 'Nandor Mirror'
         self.setWindowTitle(self.title)
-        self.setStyleSheet("background-color:blue;")
+        screen=QDesktopWidget().screenGeometry(1)
+        if screen.right()>0 and screen.bottom()>0:
+            self.move(screen.right(),screen.top())
+        self.setStyleSheet("background-color:black;")
         self.stack = QStackedWidget(parent=self)
         self.c = Communicate()
 

@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer,QObject, pyqtSignal
 from tkinter import *
@@ -18,11 +18,18 @@ class IndiApp(QWidget):
         self.active=False
         self.initUI()
 
+    def initScreen(self):
+        screen2 = QDesktopWidget().screenGeometry(1)
+        screen1 = QDesktopWidget().screenGeometry(0)
+        if screen2.right()>0:
+            self.width = screen2.right()-screen2.left()
+            self.height = screen2.bottom()
+        else:
+            self.width = screen1.right()
+            self.height = screen1.bottom()
+
     def initUI(self):
-        self.root = Tk()
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
-        self.root.destroy()
+        self.initScreen()
 
         # Add image
         self.image = QLabel(self)
@@ -45,7 +52,7 @@ class IndiApp(QWidget):
         self.button.setIcon(self.Icon_photo_active)
         self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(
-            QRect(self.width / 2 - size / 2 - diff, self.height / 2 - size / 2 + diff * 2, size + 20, size + 20))
+            QRect(self.width / 2 - size / 2, self.height -size / 2 -200, size + 20, size + 20))
         self.button.clicked.connect(self.photo_click)
         self.button.pressed.connect(self.photo_pressed)
         self.button.setStyleSheet(self.bstyle)
