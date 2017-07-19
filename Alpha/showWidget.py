@@ -31,9 +31,12 @@ class showApp(QWidget):
     def initUI(self):
         self.initScreen()
 
+        # Add image
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Photo/show.jpg")
-        pixmap.scaledToHeight(self.height)
+        pixmap.scaledToWidth(self.width - 200)
+        self.image.setGeometry(
+            QRect(100, 50, self.width - 100, self.height - 400))
         self.image.setPixmap(pixmap)
         self.image.hide()
 
@@ -101,8 +104,7 @@ class showApp(QWidget):
     def begin(self):
         self.active=True
         pixmap = QPixmap("../Resource/Photo/show.jpg")
-        pixmap = pixmap.scaledToWidth(self.width)
-        self.image.move(0, self.height / 2 - pixmap.height() / 2)
+        pixmap = pixmap.scaledToWidth(self.width - 200)
         self.image.setPixmap(pixmap)
         self.image.show()
         self.button.setEnabled(True)

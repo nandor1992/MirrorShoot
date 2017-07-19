@@ -34,9 +34,9 @@ class IndiApp(QWidget):
         # Add image
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Photo/show.jpg")
-        pixmap.scaledToWidth(self.width)
+        pixmap.scaledToWidth(self.width-200)
         self.image.setGeometry(
-            QRect(0,0,self.width,self.height-200))
+            QRect(100,50,self.width-100,self.height-400))
         self.image.setPixmap(pixmap)
         self.image.hide()
 
@@ -62,7 +62,7 @@ class IndiApp(QWidget):
         print(param1)
         self.active=True
         pixmap = QPixmap("../Resource/Photo/"+param1)
-        pixmap=pixmap.scaledToWidth(self.width)
+        pixmap=pixmap.scaledToWidth(self.width-200)
         self.image.setPixmap(pixmap)
         self.image.show()
 
