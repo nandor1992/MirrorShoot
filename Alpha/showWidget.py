@@ -93,10 +93,6 @@ class showApp(QWidget):
         self.button3.pressed.connect(self.delete_pressed)
         self.button3.setStyleSheet(self.bstyle)
 
-        self.main_timer = QTimer(self)
-        self.Idle_timer = 30000
-        self.main_timer.timeout.connect(self.timeout_timer)
-        self.main_timer.start(self.Idle_timer)  # changed timer timeout to 1s
 
         self.goBackTimer = QTimer(self)
         self.goBackTimer.timeout.connect(self.goBack)
@@ -109,7 +105,6 @@ class showApp(QWidget):
         self.image.move(0, self.height / 2 - pixmap.height() / 2)
         self.image.setPixmap(pixmap)
         self.image.show()
-        self.main_timer.start(self.Idle_timer)
         self.button.setEnabled(True)
         self.button2.setEnabled(True)
         self.button3.setEnabled(True)
@@ -117,7 +112,7 @@ class showApp(QWidget):
 
     def out(self):
         self.active=False
-        self.main_timer.stop()
+        self.comm.resetTimeout.emit()
         self.goBackTimer.stop()
         self.goBackTimer2.stop()
 
@@ -141,12 +136,10 @@ class showApp(QWidget):
         self.textLabel.setText("Deleted!")
         self.goBackTimer.start(500)
 
-    def timeout_timer(self):
-        self.out()
-        self.comm.timeout.emit()
 
     @pyqtSlot()
     def print_click(self):
+        self.comm.resetTimeout.emit()
         print("PyQt5 button1 click")
         self.button2.setIcon(self.Icon_print)
         self.button.setEnabled(False)
@@ -165,6 +158,7 @@ class showApp(QWidget):
 
     @pyqtSlot()
     def save_click(self):
+        self.comm.resetTimeout.emit()
         print("PyQt5 button1 click")
         self.button.setIcon(self.Icon_save)
         self.button.setEnabled(False)
@@ -183,6 +177,7 @@ class showApp(QWidget):
 
     @pyqtSlot()
     def delete_click(self):
+        self.comm.resetTimeout.emit()
         print("PyQt5 button1 click")
         self.button3.setIcon(self.Icon_delete)
         self.button.setEnabled(False)

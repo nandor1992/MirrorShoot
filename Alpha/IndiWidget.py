@@ -57,10 +57,6 @@ class IndiApp(QWidget):
         self.button.pressed.connect(self.photo_pressed)
         self.button.setStyleSheet(self.bstyle)
 
-        self.main_timer = QTimer(self)
-        self.Idle_timer = 30000
-        self.main_timer.timeout.connect(self.timeout_timer)
-        self.main_timer.start(self.Idle_timer)  # changed timer timeout to 1s
 
     def begin(self,param1):
         print(param1)
@@ -69,21 +65,16 @@ class IndiApp(QWidget):
         pixmap=pixmap.scaledToWidth(self.width)
         self.image.setPixmap(pixmap)
         self.image.show()
-        self.main_timer.start(self.Idle_timer)
 
     def out(self):
         self.active=False
-        self.main_timer.stop()
         self.image.hide()
-
-    def timeout_timer(self):
-        self.out()
-        self.comm.timeout.emit()
 
 
     @pyqtSlot()
     def photo_click(self):
         print("PyQt5 button1 click")
+        self.comm.resetTimeout.emit()
         self.button.setIcon(self.Icon_photo_active)
         self.out()
         self.comm.goToList.emit()

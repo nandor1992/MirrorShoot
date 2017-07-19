@@ -77,14 +77,9 @@ class PictureApp(QWidget):
         self.button2.setFlat(True)
 
         self.addLoading()
-        self.main_timer = QTimer(self)
-        self.main_timer.timeout.connect(self.timeout_timer)
-        self.main_timer.start(self.Idle_timer)  # changed timer timeout to 1s
-        # Show
         self.showFullScreen()
 
     def begin(self):
-        self.main_timer.start()
         self.image.hide()
         self.movie.jumpToFrame(0)
         self.movie.stop()
@@ -97,7 +92,6 @@ class PictureApp(QWidget):
 
     def out(self):
         self.active=False
-        self.main_timer.stop()
         self.image.hide()
         self.movie.jumpToFrame(0)
         self.movie.stop()
@@ -106,14 +100,6 @@ class PictureApp(QWidget):
         self.moviee.hide()
         if hasattr(self, 't2'):
             self.t2.stop()
-
-
-    def timeout_timer(self):
-        if  self.button.isEnabled():
-            self.out()
-            self.comm.timeout.emit()
-        else:
-            self.main_timer.start(self.Idle_timer)
 
 
     def addLoading(self):
@@ -134,6 +120,7 @@ class PictureApp(QWidget):
         # self.movie.start
 
     def takePicture(self):
+        self.comm.resetTimeout.emit()
         if self.active:
             self.button2.setEnabled(False)
             if os.name == 'posix':
@@ -186,8 +173,8 @@ class PictureApp(QWidget):
 
     @pyqtSlot()
     def photo_click(self):
+        self.comm.resetTimeout.emit()
         self.button.setEnabled(False)
-        self.main_timer.start()
         print("PyQt5 button1 click")
         self.button.setIcon(self.Icon_photo_active)
         self.image.hide()
@@ -202,6 +189,7 @@ class PictureApp(QWidget):
 
     @pyqtSlot()
     def close_click(self):
+        self.comm.resetTimeout.emit()
         print('PyQt5 button2 click')
         self.button2.setIcon(self.Icon_back_active)
         self.out()
@@ -218,10 +206,12 @@ class PictureApp(QWidget):
         self.button2.setIcon(QIcon('../Resource/Image/back_down.png'))
 
     def gif_click(self, event):
+        self.comm.resetTimeout.emit()
         print('PyQt5 Gif Click')
 
     def image_click(self,event):
         self.out()
+        self.comm.resetTimeout.emit()
         self.comm.goToReview.emit()
 
 

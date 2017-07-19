@@ -88,24 +88,13 @@ class MenuApp(QWidget):
         self.button3.setStyleSheet(self.bstyle)
         self.button3.setFlat(True)
 
-        self.main_timer = QTimer(self)
-        self.Idle_timer = 30000
-        self.main_timer.timeout.connect(self.timeout_timer)
-        self.main_timer.start(self.Idle_timer)  # changed timer timeout to 1s
-
 
     def begin(self):
         self.active=True
-        self.main_timer.start(self.Idle_timer)
 
     def out(self):
+        self.comm.resetTimeout.emit()
         self.active=False
-        self.main_timer.stop()
-
-    def timeout_timer(self):
-        self.out()
-        self.comm.timeout.emit()
-
 
     def countdown(self):
         self.movie2.stop()

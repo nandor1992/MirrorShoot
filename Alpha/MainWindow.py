@@ -1,6 +1,6 @@
 import sys, os
 from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget, QDesktopWidget
-from PyQt5.QtCore import pyqtSignal, QObject, Qt
+from PyQt5.QtCore import pyqtSignal, QObject, Qt, QTimer
 if sys.version_info >(3,5):
     from Alpha.helloWidget import IdleApp
     from Alpha.takePhotoWidget import PictureApp
@@ -17,6 +17,7 @@ else:
     from IndiWidget import IndiApp
 
 class Communicate(QObject):
+    resetTimeout = pyqtSignal()
     goToPicture = pyqtSignal()
     goToMain = pyqtSignal()
     goToReview = pyqtSignal()
@@ -64,6 +65,7 @@ class App(QMainWindow):
         self.c.goToIndividual.connect(self.go_ind)
         self.ind = IndiApp(self,self.c)
 
+
         #Extra adding etc...
         self.stack.addWidget(self.idle)
         self.stack.addWidget(self.menu)
@@ -72,8 +74,23 @@ class App(QMainWindow):
         self.stack.addWidget(self.list)
         self.stack.addWidget(self.ind)
         self.setCentralWidget(self.stack)
+
+        #Main Timeout
+        self.main_timer = QTimer(self)
+        self.Idle_timer = 30000
+        self.main_timer.timeout.connect(self.timeout_timer)
+        self.c.resetTimeout.connect(self.resetTimeout)
+        self.main_timer.start(self.Idle_timer)
         self.showFullScreen()
 
+    def timeout_timer(self):
+        print("Timeout")
+        self.c.timeout.emit()
+        self.stack.setCurrentIndex(0)
+        self.main_timer.start()
+
+    def resetTimeout(self):
+        self.main_timer.start()
 
     def go_idleTimeout(self):
         self.stack.setCurrentIndex(0)

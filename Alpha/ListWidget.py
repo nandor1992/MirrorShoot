@@ -18,6 +18,7 @@ class ListApp(QWidget):
         self.comm=comm
         self.comm.goToList.connect(self.begin)
         self.active=False
+        self.images = {}
         self.initUI()
 
     def initScreen(self):
@@ -76,35 +77,46 @@ class ListApp(QWidget):
         if self.tab1.verticalScrollBar().maximum() ==0 and self.tab1.verticalScrollBar().minimum()==0:
             self.button_up.hide()
             self.button_down.hide()
-
-        self.main_timer = QTimer(self)
-        self.Idle_timer = 30000
-        self.main_timer.timeout.connect(self.timeout_timer)
-        self.main_timer.start(self.Idle_timer)  # changed timer timeout to 1s
         self.show()
 
-    def reset(self):
-        self.main_timer.start(self.Idle_timer)
 
     def updateList(self):
-        tab1_w = QWidget()
-        tab1_layout = QGridLayout()
-        tab1_layout.setColumnStretch(2, 3)
-        tab1_w.setLayout(tab1_layout)
-        # self.setWidgetResizable(True)
-        onlyfiles = [f for f in listdir("../Resource/Photo") if isfile(join("../Resource/Photo", f))]
-        cnt=0;
-        self.images={}
-        for i in onlyfiles:
-            if i!="show.jpg" and i!="test_image.jpg":
-                self.images[i] = QLabel(self)
-                pixmap = QPixmap("../Resource/Photo/"+i)
-                pixmap=pixmap.scaledToWidth((self.width-140)/3)
-                self.images[i].setPixmap(pixmap)
-                self.images[i].mouseReleaseEvent = lambda event, arg=i :self.image_click(arg)
-                tab1_layout.addWidget(self.images[i],int(cnt/3),int(divmod(cnt,3)[1]))
-                cnt += 1
-        self.tab1.setWidget(tab1_w)
+        if len(self.images)==0:
+            #Init
+            self.tab1_w = QWidget()
+            self.tab1_layout = QGridLayout()
+            self.tab1_layout.setColumnStretch(2, 3)
+            self.tab1_w.setLayout(self.tab1_layout)
+            # self.setWidgetResizable(True)
+            onlyfiles = [f for f in listdir("../Resource/Photo") if isfile(join("../Resource/Photo", f))]
+            cnt=0;
+            self.images_list=onlyfiles
+            for i in onlyfiles:
+                if i!="show.jpg" and i!="test_image.jpg":
+                    self.images[i] = QLabel(self)
+                    pixmap = QPixmap("../Resource/Photo/"+i)
+                    pixmap=pixmap.scaledToWidth((self.width-140)/3)
+                    self.images[i].setPixmap(pixmap)
+                    self.images[i].mouseReleaseEvent = lambda event, arg=i :self.image_click(arg)
+                    self.tab1_layout.addWidget(self.images[i],int(cnt/3),int(divmod(cnt,3)[1]))
+                    cnt += 1
+            self.tab1.setWidget(self.tab1_w)
+        else:
+            #Update
+            onlyfiles = [f for f in listdir("../Resource/Photo") if isfile(join("../Resource/Photo", f))]
+            diff=list(set(onlyfiles).difference(self.images_list))
+            cnt=len(self.images_list)-2
+            print(diff)
+            if len(diff)!=0:
+                print("Diff found")
+                for i in diff:
+                        self.images[i] = QLabel(self)
+                        pixmap = QPixmap("../Resource/Photo/" + i)
+                        pixmap = pixmap.scaledToWidth((self.width - 140) / 3)
+                        self.images[i].setPixmap(pixmap)
+                        self.images[i].mouseReleaseEvent = lambda event, arg=i: self.image_click(arg)
+                        self.tab1_layout.addWidget(self.images[i], int(cnt / 3), int(divmod(cnt, 3)[1]))
+                        cnt += 1
         if self.tab1.verticalScrollBar().maximum() ==0 and self.tab1.verticalScrollBar().minimum()==0:
             self.button_up.hide()
             self.button_down.hide()
@@ -115,24 +127,21 @@ class ListApp(QWidget):
     def begin(self):
         self.active=True
         self.updateList()
-        self.main_timer.start(self.Idle_timer)
 
     def out(self):
         self.active=False
-        self.main_timer.stop()
 
 
     def image_click(self,i):
+        self.comm.resetTimeout.emit()
         print("Clicked"+str(i))
         self.out()
         self.comm.goToIndividual.emit(i)
 
-    def timeout_timer(self):
-        self.out()
-        self.comm.timeout.emit()
 
     @pyqtSlot()
     def close_click(self):
+        self.comm.resetTimeout.emit()
         self.button2.setIcon(self.Icon_back_active)
         self.out()
         self.comm.goToMain.emit()
@@ -143,7 +152,7 @@ class ListApp(QWidget):
 
     @pyqtSlot()
     def up_click(self):
-        self.reset()
+        self.comm.resetTimeout.emit()
         self.tab1.verticalScrollBar().setValue(self.tab1.verticalScrollBar().value() - self.height/10)
         if self.tab1.verticalScrollBar().minimum() >=self.tab1.verticalScrollBar().value():
             self.button_up.hide()
@@ -156,7 +165,7 @@ class ListApp(QWidget):
 
     @pyqtSlot()
     def down_click(self):
-        self.reset()
+        self.comm.resetTimeout.emit()
         self.tab1.verticalScrollBar().setValue(self.tab1.verticalScrollBar().value() +self.height/10)
         if self.tab1.verticalScrollBar().maximum() <=self.tab1.verticalScrollBar().value():
             self.button_down.hide()

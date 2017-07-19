@@ -15,7 +15,6 @@ class IdleApp(QWidget):
         self.title = 'Nandor Magic Mirror'
         self.lastTrigger = time.time()
         self.comm=comm
-        self.Delay_timer=30000
         self.gif_timer=1800
         self.active=False
         comm.timeout.connect(self.begin)
@@ -30,18 +29,17 @@ class IdleApp(QWidget):
         self.initUI()
 
     def begin(self):
-        self.main_timer.start()
-        self.movie.stop()  # those lines
-        self.timer.stop()
+        self.lastTrigger = time.time()
         self.movie.jumpToFrame(0)
         self.active=True
+        self.movie.start()
+        self.timer.start(self.gif_timer)
 
     def out(self):
         self.active=False
         self.movie.jumpToFrame(0)
         self.movie.stop()
         self.timer.stop()
-        self.main_timer.stop()
 
     def initScreen(self):
         screen2 = QDesktopWidget().screenGeometry(1)
@@ -69,31 +67,22 @@ class IdleApp(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timer_)
 
-        self.main_timer = QTimer(self)
-        self.main_timer.timeout.connect(self.timer2_)
-        self.main_timer.start(self.Delay_timer)  # changed timer timeout to 1s
-        self.movie.start()
-        self.timer.start(self.gif_timer)  # changed timer timeout to 1s
+
     def timer_(self):
         self.movie.stop()  # those lines
         self.timer.stop()
-        self.main_timer.start(self.Delay_timer)
-
-    def timer2_(self):
-        self.timer.start(self.gif_timer)
-        self.lastTrigger=time.time()
-        self.movie.start()
-        self.main_timer.stop()
 
     def gpio_callback(self, channel):
-        if time.time() > self.lastTrigger + self.Delay_timer/5000 and self.active:
+        if time.time() > self.lastTrigger + 10 and self.active:
+            self.comm.resetTimeout.emit()
             self.lastTrigger = time.time()
             self.movie.jumpToFrame(0)
             self.movie.start()
             self.timer.start(self.gif_timer)
 
     def gpio_callback2(self, channel):
-        if time.time() > self.lastTrigger + self.Delay_timer/5000 and self.active:
+        if time.time() > self.lastTrigger + 10 and self.active:
+            self.comm.resetTimeout.emit()
             self.lastTrigger = time.time()
             self.movie.jumpToFrame(0)
             self.movie.start()
@@ -102,6 +91,7 @@ class IdleApp(QWidget):
     def gif_click(self, event):
         print('PyQt5 Gif Click')
         self.out()
+        self.comm.resetTimeout.emit()
         self.comm.goToMain.emit()
 
 
