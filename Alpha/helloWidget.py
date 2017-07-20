@@ -15,7 +15,7 @@ class IdleApp(QWidget):
         self.title = 'Nandor Magic Mirror'
         self.lastTrigger = time.time()
         self.comm=comm
-        self.gif_timer=1800
+        self.gif_timer=2600
         self.active=False
         comm.timeout.connect(self.begin)
         if os.name == 'posix':
@@ -30,8 +30,12 @@ class IdleApp(QWidget):
 
     def begin(self):
         self.lastTrigger = time.time()
+        self.movie2.stop()
+        self.movie2.jumpToFrame(0)
+        self.movie2.stop()
         self.movie.jumpToFrame(0)
         self.active=True
+        self.moviee.setMovie(self.movie)
         self.movie.start()
         self.timer.start(self.gif_timer)
 
@@ -39,6 +43,8 @@ class IdleApp(QWidget):
         self.active=False
         self.movie.jumpToFrame(0)
         self.movie.stop()
+        self.movie2.jumpToFrame(0)
+        self.movie2.stop()
         self.timer.stop()
 
     def initScreen(self):
@@ -58,19 +64,26 @@ class IdleApp(QWidget):
         self.movie = QMovie("../Resource/Gif/hello.gif")
         size = max(self.width, self.height) / 3
         self.movie.setScaledSize(QSize(size+300,size))
-        self.moviee.setMovie(self.movie)
-        self.moviee.setGeometry(QRect(self.width / 2 - size/2-150, self.height / 2 - size / 2, size+300,size))
+        self.movie2 = QMovie("../Resource/Gif/IdleGif.gif")
+        self.movie2.setScaledSize(QSize(size*1.3,size*1.3+80))
+        self.moviee.setMovie(self.movie2)
+        self.moviee.setAlignment(Qt.AlignCenter)
+        self.moviee.setGeometry(QRect(50,50, self.width -50, self.height-50))
         self.moviee.setAttribute(Qt.WA_TranslucentBackground)
         self.moviee.mouseReleaseEvent = self.gif_click
         self.moviee.show()
+        self.movie2.start()
         #Timer
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timer_)
 
 
     def timer_(self):
-        self.movie.stop()  # those lines
+        self.movie.stop()
         self.timer.stop()
+        self.moviee.setMovie(self.movie2)
+        self.movie2.jumpToFrame(0)
+        self.movie2.start()
 
     def gpio_callback(self, channel):
         if time.time() > self.lastTrigger + 10 and self.active:

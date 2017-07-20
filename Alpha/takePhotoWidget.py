@@ -61,14 +61,14 @@ class PictureApp(QWidget):
 
         # Button Exity
         self.button2 = QPushButton(self)
-        size = max(self.width, self.height) / 15
+        size = max(self.width, self.height) / 10
         self.Icon_back_active=QIcon()
         self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'),mode=QIcon.Disabled)
         self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Active)
         self.button2.setIcon(self.Icon_back_active)
         self.button2.setIconSize(QSize(size, size))
         self.button2.setGeometry(
-            QRect(self.width / 6 - size / 2 , self.height - 2*size, size + 20, size + 20))
+            QRect(size / 3, self.height - size - size / 4, size + 20, size + 20))
         self.button2.clicked.connect(self.close_click)
         self.button2.pressed.connect(self.close_pressed)
         self.button2.setStyleSheet(self.bstyle)
@@ -133,7 +133,7 @@ class PictureApp(QWidget):
                 img_file_white = Image.new("RGB", (width, height), "white")
                 img_blended = Image.blend(img_file, img_file_white, correctionVal)
                 img_blended.save("../Resource/Photo/show.jpg")
-            elif os.name =='nt':
+            elif os.name =='ntx':
                 name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
                 name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
                 self.takeNikonPic(name_pic)

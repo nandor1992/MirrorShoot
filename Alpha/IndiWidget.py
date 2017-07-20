@@ -31,6 +31,7 @@ class IndiApp(QWidget):
     def initUI(self):
         self.initScreen()
 
+
         # Add image
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Photo/show.jpg")
@@ -40,22 +41,46 @@ class IndiApp(QWidget):
         self.image.setPixmap(pixmap)
         self.image.hide()
 
+        #Label
+        self.textLabel = QLabel(self)
+        self.textLabel.setText("...Nothing")
+        self.textLabel.setStyleSheet(
+            "QLabel{background: transparent;outline: none;border: none;color:white; font-size:42pt}")
+        self.textLabel.setGeometry(QRect(self.width / 2 - 100, self.height / 2 - 80, 300, 80))
+        self.textLabel.hide()
+
         self.bstyle = "QPushButton{background: transparent;outline: none;border: none}"
         # Button    border-width: 5px;padding: 5px;border-style:solid;border-radius: 5px
         self.button = QPushButton(self)
-        size = max(self.width, self.height) / 6
-        diff = max(self.width, self.height) / 8
-        self.button.move(self.width / 2 - size / 2 - diff, self.height / 2 - size / 2 + diff)
+        size = max(self.width, self.height) / 10
         self.Icon_photo_active=QIcon()
         self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/back.png'),mode=QIcon.Disabled)
         self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Active)
         self.button.setIcon(self.Icon_photo_active)
         self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(
-            QRect(self.width / 2 - size / 2, self.height -size / 2 -200, size + 20, size + 20))
+            QRect(size / 3, self.height - size - size / 4, size + 20, size + 20))
         self.button.clicked.connect(self.photo_click)
         self.button.pressed.connect(self.photo_pressed)
         self.button.setStyleSheet(self.bstyle)
+
+        #Button2
+        self.button2 = QPushButton(self)
+        self.Icon_print = QIcon()
+        self.Icon_print.addPixmap(QPixmap('../Resource/Image/print_img.png'), mode=QIcon.Disabled)
+        self.Icon_print.addPixmap(QPixmap('../Resource/Image/print_img.png'), mode=QIcon.Active)
+        self.button2.setIcon(self.Icon_print)
+        size = max(self.width, self.height) / 6
+        self.button2.setIconSize(QSize(size, size))
+        self.button2.setGeometry(
+            QRect(self.width / 2 - size / 2, self.height - size - size / 4, size + 20, size + 20))
+        self.button2.clicked.connect(self.print_click)
+        self.button2.pressed.connect(self.print_pressed)
+        self.button2.setStyleSheet(self.bstyle)
+
+        self.goBackTimer = QTimer(self)
+        self.goBackTimer.timeout.connect(self.goBack)
+        self.goBackTimer2 = QTimer(self)
 
 
     def begin(self,param1):
@@ -73,7 +98,6 @@ class IndiApp(QWidget):
 
     @pyqtSlot()
     def photo_click(self):
-        print("PyQt5 button1 click")
         self.comm.resetTimeout.emit()
         self.button.setIcon(self.Icon_photo_active)
         self.out()
@@ -81,8 +105,35 @@ class IndiApp(QWidget):
 
     @pyqtSlot()
     def photo_pressed(self):
-        print('PyQt5 button1 pressed')
         self.button.setIcon(QIcon('../Resource/Image/back_down.png'))
+
+    @pyqtSlot()
+    def print_click(self):
+        self.comm.resetTimeout.emit()
+        self.button2.setIcon(self.Icon_print)
+        self.button.setEnabled(False)
+        self.button2.setEnabled(False)
+        self.textLabel.setGeometry(QRect(self.width / 2 - 100, self.height / 2 - 80, 350, 100))
+        self.textLabel.setText("...Printing")
+        self.textLabel.show()
+        self.goBackTimer2.timeout.connect(self.setTextPrint)
+        self.goBackTimer2.start(1500)
+
+    def setTextPrint(self):
+        self.textLabel.setGeometry(QRect(self.width / 2 - 80, self.height / 2 - 80, 350, 100))
+        self.textLabel.setText("Printed!")
+        #Add part wit hactuall printing of photo
+        self.goBackTimer.start(500)
+
+    def goBack(self):
+        self.comm.resetTimeout.emit()
+        self.button.setEnabled(True)
+        self.button2.setEnabled(True)
+        self.textLabel.hide()
+
+    @pyqtSlot()
+    def print_pressed(self):
+        self.button2.setIcon(QIcon('../Resource/Image/print_img_down.png'))
 
 
 class Communicate(QObject):
