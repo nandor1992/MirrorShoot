@@ -74,15 +74,14 @@ class MenuApp(QWidget):
         self.button3 = QPushButton(self)
         self.Icon_back_exit = QIcon()
         pixmap3 = QPixmap("../Resource/Image/off.png")
-        pixmap3 = pixmap3.scaledToWidth(self.width / 4)
+        size = max(self.width, self.height) / 6
+        pixmap3 = pixmap3.scaledToWidth(size)
         self.Icon_back_exit.addPixmap(pixmap3, mode=QIcon.Disabled)
         self.Icon_back_exit.addPixmap(pixmap3, mode=QIcon.Active)
         self.button3.setIcon(self.Icon_back_exit)
-        self.button3.setIconSize(QSize(pixmap3.width(), pixmap3.height()))
+        self.button3.setIconSize(QSize(size, size))
         self.button3.setGeometry(
-            QRect(self.width / 2 - pixmap3.width() / 2, self.height - 50 - pixmap3.height(), pixmap3.width() + 20,
-                  pixmap3.height() + 20))
-
+            QRect(QRect(self.width / 2 - size / 2, self.height - size -size/4 , size + 20, size + 20)))
         self.button3.clicked.connect(self.exit_click)
         self.button3.pressed.connect(self.exit_pressed)
         self.button3.setStyleSheet(self.bstyle)

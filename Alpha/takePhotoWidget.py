@@ -106,10 +106,9 @@ class PictureApp(QWidget):
         self.movie2= QMovie("../Resource/Gif/countdown.gif")
         size = max(self.width, self.height) / 5
         diff = max(self.width, self.height) / 12
-        self.movie.setScaledSize(QSize(size, size))
-        self.movie2.setScaledSize(QSize(size, size))
+        self.movie.setScaledSize(self.scaleToWidth(size,self.movie))
+        self.movie2.setScaledSize(self.scaleToWidth(size,self.movie2))
         self.moviee.setMovie(self.movie)
-        self.moviee.move(self.width / 2 - size / 2 + diff, self.height / 2 - size / 2 + diff)
         self.moviee.setGeometry(
             QRect(self.width / 2 - size / 2, self.height / 2 - size / 2 - diff, size + 20, size + 20))
         self.moviee.setAttribute(Qt.WA_TranslucentBackground)
@@ -215,6 +214,12 @@ class PictureApp(QWidget):
         self.comm.resetTimeout.emit()
         self.comm.goToReview.emit()
 
+    def scaleToWidth(self,width,movie):
+        movie.jumpToFrame(0)
+        w=movie.currentPixmap().width()
+        h=movie.currentPixmap().height()
+        ratio=float(width/w)
+        return QSize(w*ratio,h*ratio)
 
 class App(QMainWindow):
     def __init__(self):

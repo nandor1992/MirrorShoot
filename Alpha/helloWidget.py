@@ -63,9 +63,9 @@ class IdleApp(QWidget):
         self.moviee = QLabel(self)
         self.movie = QMovie("../Resource/Gif/hello.gif")
         size = max(self.width, self.height) / 3
-        self.movie.setScaledSize(QSize(size+300,size))
+        self.movie.setScaledSize(self.scaleToWidth(size,self.movie))
         self.movie2 = QMovie("../Resource/Gif/IdleGif.gif")
-        self.movie2.setScaledSize(QSize(size*1.3,size*1.3+80))
+        self.movie2.setScaledSize(self.scaleToWidth(size,self.movie2))
         self.moviee.setMovie(self.movie2)
         self.moviee.setAlignment(Qt.AlignCenter)
         self.moviee.setGeometry(QRect(50,50, self.width -50, self.height-50))
@@ -107,6 +107,12 @@ class IdleApp(QWidget):
         self.comm.resetTimeout.emit()
         self.comm.goToMain.emit()
 
+    def scaleToWidth(self,width,movie):
+        movie.jumpToFrame(0)
+        w=movie.currentPixmap().width()
+        h=movie.currentPixmap().height()
+        ratio=float(width/w)
+        return QSize(w*ratio,h*ratio)
 
 class App(QMainWindow):
     def __init__(self):
@@ -119,7 +125,7 @@ class App(QMainWindow):
         self.showFullScreen()
 
 
-if __name__ == '__main__':
+if __name__ == '__main2__':
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
