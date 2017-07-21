@@ -7,6 +7,7 @@ import time
 import threading
 import datetime
 from PIL import Image
+from Alpha.Printer import Printer
 
 class showApp(QWidget):
     def __init__(self,parent,comm):
@@ -16,6 +17,7 @@ class showApp(QWidget):
         self.comm=comm
         self.comm.goToReview.connect(self.begin)
         self.active=False
+        self.print=Printer()
         self.initUI()
 
     def initScreen(self):
@@ -114,23 +116,16 @@ class showApp(QWidget):
 
     def out(self):
         self.active=False
-        self.comm.resetTimeout.emit()
         self.goBackTimer.stop()
-        self.goBackTimer2.stop()
 
     def goBack(self):
+        print("Leaving Show Widget")
         self.out()
         self.comm.goToPicture.emit()
 
     def setTextSave(self):
         self.textLabel.setGeometry(QRect(self.width / 2 - 60, self.height / 2 - 80, 350, 100))
         self.textLabel.setText("Saved!")
-        self.goBackTimer.start(500)
-
-    def setTextPrint(self):
-        self.textLabel.setGeometry(QRect(self.width / 2 - 80, self.height / 2 - 80, 350, 100))
-        self.textLabel.setText("Printed!")
-        #Add part wit hactuall printing of photo
         self.goBackTimer.start(500)
 
     def setTextDelete(self):
@@ -150,8 +145,17 @@ class showApp(QWidget):
         self.textLabel.setGeometry(QRect(self.width / 2 - 120, self.height / 2 - 80, 300, 100))
         self.textLabel.setText("...Printing")
         self.textLabel.show()
-        self.goBackTimer2.timeout.connect(self.setTextPrint)
-        self.goBackTimer2.start(1500)
+        self.comm.resetTimeout.emit()
+        threading.Thread(target=self.print_photo, args=["show.jpg"]).start()
+
+    def print_photo(self,name):
+        self.print.printPhoto(name)
+        self.textLabel.setGeometry(QRect(self.width / 2 - 80, self.height / 2 - 80, 350, 100))
+        self.textLabel.setText("Printed!")
+        #Add part wit hactuall printing of photo
+        print("Leaving Show Widget")
+        time.sleep(0.5)
+        self.goBack()
 
     @pyqtSlot()
     def print_pressed(self):
