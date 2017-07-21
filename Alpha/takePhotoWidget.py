@@ -132,7 +132,7 @@ class PictureApp(QWidget):
                 img_file_white = Image.new("RGB", (width, height), "white")
                 img_blended = Image.blend(img_file, img_file_white, correctionVal)
                 img_blended.save("../Resource/Photo/show.jpg")
-            elif os.name =='ntx':
+            elif os.name =='nt':
                 name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
                 name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
                 self.takeNikonPic(name_pic)
