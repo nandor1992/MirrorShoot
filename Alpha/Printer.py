@@ -18,7 +18,10 @@ class Printer():
         img_file = Image.open(self.dir_path+name)
         img2=img_file.rotate(270,expand=True)
         img2.save(self.dir_path+"print.jpg")
-        os.system("mspaint /p "+self.dir_path+"print.jpg"+" /pt"+self.printer_name)
+        #os.system("mspaint /p "+self.dir_path+"print.jpg"+" /pt"+self.printer_name)
+        command="print "+self.dir_path+"print.jpg" + " /d:"+self.printer_port
+        print(command)
+        os.system(command)
 
 if __name__ == '__main__':
     p=Printer()
