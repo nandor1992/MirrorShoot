@@ -137,13 +137,16 @@ class PictureApp(QWidget):
                 name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
                 self.takeNikonPic(name_pic)
                 correctionVal = 0
-                img_file = Image.open(name)
-                img2=img_file.rotate(90,expand=True)
-                #width, height = img_file.size
-                #img_file_white = Image.new("RGB", (width, height), "white")
-                #img_blended = Image.blend(img_file, img_file_white, correctionVal)
-                img2.save("../Resource/Photo/show.jpg")
-                img2.save(name)
+                try:
+                    img_file = Image.open(name)
+                    img2=img_file.rotate(90,expand=True)
+                    #width, height = img_file.size
+                    #img_file_white = Image.new("RGB", (width, height), "white")
+                    #img_blended = Image.blend(img_file, img_file_white, correctionVal)
+                    img2.save("../Resource/Photo/show.jpg")
+                    img2.save(name)
+                except FileNotFoundError:
+                    print("Pic Not taken")
             else:
                 time.sleep(2)
             pixmap = QPixmap("../Resource/Photo/show.jpg")
@@ -155,12 +158,17 @@ class PictureApp(QWidget):
         self.button2.setEnabled(True)
         self.button.setEnabled(True)
         self.out()
-        self.comm.goToReview.emit()
+        self.comm.resetTimeout.emit()
+        try:
+            img_file = Image.open(name)
+            self.comm.goToReview.emit(name)
+        except:
+            print("Error so no Next")
+            self.active=True
 
     def takeNikonPic(self,name):
         dir_path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         dir_path += "\Resource\Photo\\"
-        print(dir_path)
         dir = '"C:/Program Files (x86)/digiCamControl/CameraControlCmd.exe"'
         os.system(dir + "/filename " + dir_path + name + " /capture ")
 

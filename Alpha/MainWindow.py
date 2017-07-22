@@ -20,7 +20,7 @@ class Communicate(QObject):
     resetTimeout = pyqtSignal()
     goToPicture = pyqtSignal()
     goToMain = pyqtSignal()
-    goToReview = pyqtSignal()
+    goToReview = pyqtSignal(['QString'])
     goToList = pyqtSignal()
     goToIndividual = pyqtSignal(['QString'])
     timeout = pyqtSignal()

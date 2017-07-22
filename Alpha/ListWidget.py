@@ -105,7 +105,8 @@ class ListApp(QWidget):
             #Update
             onlyfiles = [f for f in listdir("../Resource/Photo") if isfile(join("../Resource/Photo", f))]
             diff=list(set(onlyfiles).difference(self.images_list))
-            cnt=len(self.images_list)-2
+            cnt = len(self.images_list)-3
+            self.images_list = onlyfiles
             print(diff)
             if len(diff)!=0:
                 print("Diff found")

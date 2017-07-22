@@ -7,7 +7,10 @@ import time
 import threading
 import datetime
 from PIL import Image
-
+if sys.version_info >(3,5):
+    from Alpha.Printer import Printer
+else:
+    from Printer import Printer
 class IndiApp(QWidget):
     def __init__(self,parent,comm):
         super(QWidget,self).__init__(parent)
@@ -16,6 +19,7 @@ class IndiApp(QWidget):
         self.comm=comm
         self.comm.goToIndividual.connect(self.begin)
         self.active=False
+        self.print = Printer()
         self.initUI()
 
     def initScreen(self):
@@ -85,11 +89,13 @@ class IndiApp(QWidget):
 
     def begin(self,param1):
         print(param1)
+        self.image_text=param1
         self.active=True
         pixmap = QPixmap("../Resource/Photo/"+param1)
         pixmap=pixmap.scaledToWidth(self.width-200)
         self.image.setPixmap(pixmap)
         self.image.show()
+        self.textLabel.hide()
 
     def out(self):
         self.active=False
@@ -116,14 +122,19 @@ class IndiApp(QWidget):
         self.textLabel.setGeometry(QRect(self.width / 2 - 100, self.height / 2 - 80, 350, 100))
         self.textLabel.setText("...Printing")
         self.textLabel.show()
-        self.goBackTimer2.timeout.connect(self.setTextPrint)
-        self.goBackTimer2.start(1500)
+        self.comm.resetTimeout.emit()
+        threading.Thread(target=self.print_photo, args=[self.image_text]).start()
 
-    def setTextPrint(self):
+    def print_photo(self,name):
+        self.print.printPhoto(name)
         self.textLabel.setGeometry(QRect(self.width / 2 - 80, self.height / 2 - 80, 350, 100))
         self.textLabel.setText("Printed!")
         #Add part wit hactuall printing of photo
-        self.goBackTimer.start(500)
+        print("Leaving Show Widget")
+        self.comm.resetTimeout.emit()
+        self.button.setEnabled(True)
+        self.button2.setEnabled(True)
+        time.sleep(0.5)
 
     def goBack(self):
         self.comm.resetTimeout.emit()

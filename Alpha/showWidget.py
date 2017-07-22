@@ -7,7 +7,10 @@ import time
 import threading
 import datetime
 from PIL import Image
-from Alpha.Printer import Printer
+if sys.version_info >(3,5):
+    from Alpha.Printer import Printer
+else:
+    from Printer import Printer
 
 class showApp(QWidget):
     def __init__(self,parent,comm):
@@ -98,14 +101,10 @@ class showApp(QWidget):
         self.button3.pressed.connect(self.delete_pressed)
         self.button3.setStyleSheet(self.bstyle)
 
-
-        self.goBackTimer = QTimer(self)
-        self.goBackTimer.timeout.connect(self.goBack)
-        self.goBackTimer2 = QTimer(self)
-
-    def begin(self):
+    def begin(self,name):
         self.active=True
-        pixmap = QPixmap("../Resource/Photo/show.jpg")
+        self.name=name
+        pixmap = QPixmap(name)
         pixmap = pixmap.scaledToWidth(self.width - 200)
         self.image.setPixmap(pixmap)
         self.image.show()
@@ -116,22 +115,27 @@ class showApp(QWidget):
 
     def out(self):
         self.active=False
-        self.goBackTimer.stop()
 
     def goBack(self):
         print("Leaving Show Widget")
+        time.sleep(0.5)
         self.out()
         self.comm.goToPicture.emit()
 
     def setTextSave(self):
+        time.sleep(1.5)
+        print("Saving")
         self.textLabel.setGeometry(QRect(self.width / 2 - 60, self.height / 2 - 80, 350, 100))
         self.textLabel.setText("Saved!")
-        self.goBackTimer.start(500)
+        threading.Thread(target=self.goBack).start()
 
     def setTextDelete(self):
+        time.sleep(1.5)
+        print("Deleting "+self.name)
         self.textLabel.setGeometry(QRect(self.width / 2 - 80, self.height / 2 - 80, 350, 100))
+        os.remove(self.name)
         self.textLabel.setText("Deleted!")
-        self.goBackTimer.start(500)
+        threading.Thread(target=self.goBack).start()
 
 
     @pyqtSlot()
@@ -173,8 +177,7 @@ class showApp(QWidget):
         self.textLabel.setGeometry(QRect(self.width / 2 - 100, self.height / 2 - 80, 300, 100))
         self.textLabel.setText("...Saving")
         self.textLabel.show()
-        self.goBackTimer2.timeout.connect(self.setTextSave)
-        self.goBackTimer2.start(1500)
+        threading.Thread(target=self.setTextSave).start()
 
     @pyqtSlot()
     def save_pressed(self):
@@ -192,8 +195,7 @@ class showApp(QWidget):
         self.textLabel.setGeometry(QRect(self.width / 2 - 100, self.height / 2 - 80, 350, 100))
         self.textLabel.setText("...Deleting")
         self.textLabel.show()
-        self.goBackTimer2.timeout.connect(self.setTextDelete)
-        self.goBackTimer2.start(1500)
+        threading.Thread(target=self.setTextDelete).start()
 
     @pyqtSlot()
     def delete_pressed(self):

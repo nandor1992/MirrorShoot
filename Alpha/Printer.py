@@ -1,5 +1,6 @@
 import os,subprocess
 from PIL import Image
+import time
 
 class Printer():
     def __init__(self):
@@ -10,19 +11,36 @@ class Printer():
             if len(line)>=5:
                 parts = line.rsplit()
                 if parts[0]!="Name":
-                    self.printer_name = " ".join(parts[:-1])
-                    self.printer_port = parts[-1]
-                    #print("Printer " +self.printer_name + " Port: "+self.printer_port)
+                    if " ".join(parts[:-1])=="Olmec OP900":
+                        self.printer_name = " ".join(parts[:-1])
+                        self.printer_port = parts[-1]
+                        print("Printer found: " +self.printer_name + " Port: "+self.printer_port)
 
     def printPhoto(self,name):
+        print("Started Processing Print: "+name)
         img_file = Image.open(self.dir_path+name)
-        img2=img_file.rotate(270,expand=True)
-        img2.save(self.dir_path+"print.jpg")
-        #os.system("mspaint /p "+self.dir_path+"print.jpg"+" /pt"+self.printer_name)
-        command="print "+self.dir_path+"print.jpg" + " /d:"+self.printer_port
-        print(command)
-        os.system(command)
+        photo_view='"C:\Program Files\Windows Photo Viewer\PhotoViewer.dll"'
+        cmd="rundll32.exe C:\WINDOWS\system32\shimgvw.dll ImageView_PrintTo /pt "+self.dir_path+name +" \""+self.printer_name+"\""
+        else1="/pt   "+self.dir_path+"print.jpg /print "+self.printer_name
+        os.system(cmd)
+        time.sleep(0.2)
+        self.processingPrint()
+
+    def getPrinterStatus(self):
+        printer = os.popen("wmic printer list brief").read()
+        for line in printer.rsplit('\n'):
+            if len(line) >= 5:
+                parts = line.rsplit()
+                if parts[0] != "Name":
+                    if " ".join(parts[:-3]) == "Olmec OP900":
+                        return int(parts[-2])
+
+    def processingPrint(self):
+        print("Print Sent, Waiting...")
+        while self.getPrinterStatus()!=3:
+            time.sleep(0.2)
+        print("Done!")
 
 if __name__ == '__main__':
     p=Printer()
-    p.printPhoto("show.jpg")
+    p.printPhoto("DSC_1002.JPG")
