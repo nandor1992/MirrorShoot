@@ -2,7 +2,7 @@ import sys, os
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget
 from PyQt5.QtGui import QIcon, QMovie, QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer
-from tkinter import *
+
 import time
 import threading
 import datetime
