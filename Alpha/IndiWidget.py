@@ -7,10 +7,7 @@ import time
 import threading
 import datetime
 from PIL import Image
-if sys.version_info >(3,5):
-    from Alpha.Printer import Printer
-else:
-    from Printer import Printer
+from Printer import Printer
 class IndiApp(QWidget):
     def __init__(self,parent,comm):
         super(QWidget,self).__init__(parent)
@@ -19,6 +16,7 @@ class IndiApp(QWidget):
         self.comm=comm
         self.comm.goToIndividual.connect(self.begin)
         self.active=False
+        self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         self.print = Printer()
         self.initUI()
 
@@ -58,8 +56,8 @@ class IndiApp(QWidget):
         self.button = QPushButton(self)
         size = max(self.width, self.height) / 10
         self.Icon_photo_active=QIcon()
-        self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/back.png'),mode=QIcon.Disabled)
-        self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Active)
+        self.Icon_photo_active.addPixmap(QPixmap(self.base_dir+"/Resource/Image/back.png"),mode=QIcon.Disabled)
+        self.Icon_photo_active.addPixmap(QPixmap(self.base_dir+"/Resource/Image/back.png"), mode=QIcon.Active)
         self.button.setIcon(self.Icon_photo_active)
         self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(
@@ -71,8 +69,8 @@ class IndiApp(QWidget):
         #Button2
         self.button2 = QPushButton(self)
         self.Icon_print = QIcon()
-        self.Icon_print.addPixmap(QPixmap('../Resource/Image/print_img.png'), mode=QIcon.Disabled)
-        self.Icon_print.addPixmap(QPixmap('../Resource/Image/print_img.png'), mode=QIcon.Active)
+        self.Icon_print.addPixmap(QPixmap(self.base_dir+"/Resource/Image/print_img.png"), mode=QIcon.Disabled)
+        self.Icon_print.addPixmap(QPixmap(self.base_dir+"/Resource/Image/print_img.png"), mode=QIcon.Active)
         self.button2.setIcon(self.Icon_print)
         size = max(self.width, self.height) / 6
         self.button2.setIconSize(QSize(size, size))
@@ -91,7 +89,7 @@ class IndiApp(QWidget):
         print(param1)
         self.image_text=param1
         self.active=True
-        pixmap = QPixmap("../Resource/Photo/"+param1)
+        pixmap = QPixmap(self.base_dir+"/Resource/Photo/"+param1)
         pixmap=pixmap.scaledToWidth(self.width-200)
         self.image.setPixmap(pixmap)
         self.image.show()
@@ -111,7 +109,7 @@ class IndiApp(QWidget):
 
     @pyqtSlot()
     def photo_pressed(self):
-        self.button.setIcon(QIcon('../Resource/Image/back_down.png'))
+        self.button.setIcon(QIcon(self.base_dir+"/Resource/Image/back_down.png"))
 
     @pyqtSlot()
     def print_click(self):
@@ -144,7 +142,7 @@ class IndiApp(QWidget):
 
     @pyqtSlot()
     def print_pressed(self):
-        self.button2.setIcon(QIcon('../Resource/Image/print_img_down.png'))
+        self.button2.setIcon(QIcon(self.base_dir+"/Resource/Image/print_img_down.png"))
 
 
 class Communicate(QObject):
