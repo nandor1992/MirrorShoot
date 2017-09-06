@@ -4,15 +4,14 @@ import os
 class Editor():
     def __init__(self, name):
         self.name=name
-        self.orig=Image.open(name)
         self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         self.stat="Original"
 
     def addFrame(self,frame):
         cover_file = Image.open(frame)
-        pic=self.orig.copy()
+        pic=Image.open(self.name)
         pic.paste(cover_file, (0, 0), cover_file)
-        pic.save(self.base_dir+"/Resource/Photo/show.jpg")
+        pic.save(self.base_dir+"/Resource/Photo/edited.jpg")
         self.stat = "Framed"
         return pic
 

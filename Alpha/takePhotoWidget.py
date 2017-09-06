@@ -138,24 +138,10 @@ class PictureApp(QWidget):
                 name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
                 self.takeNikonPic(name_pic)
                 correctionVal = 0
-                try:
-                    img_file = Image.open(name)
-                    img2=img_file.rotate(90,expand=True)
-                    #width, height = img_file.size
-                    #img_file_white = Image.new("RGB", (width, height), "white")
-                    #img_blended = Image.blend(img_file, img_file_white, correctionVal)
-                    img2.save(self.base_dir+"/Resource/Photo/show.jpg")
-                    img2.save(name)
-                except FileNotFoundError:
-                    print("Pic Not taken")
             else:
                 time.sleep(2)
-            pixmap = QPixmap(self.base_dir+"/Resource/Photo/show.jpg")
             self.movie.stop()
             self.moviee.hide()
-            pixmap = pixmap.scaledToWidth(self.width*0.6)
-            self.image.setPixmap(pixmap)
-            self.image.show()
         self.button2.setEnabled(True)
         self.button.setEnabled(True)
         self.out()
@@ -165,8 +151,8 @@ class PictureApp(QWidget):
             self.comm.goToReview.emit(name)
         except:
             print("Error so no Next")
-            #self.comm.goToReview.emit(self.base_dir+"/Resource/Photo/DSC_0251.jpg")
-            self.active=True
+            self.comm.goToReview.emit(self.base_dir+"/Resource/Photo/DSC_0235.jpg")
+            #self.active=True
 
     def takeNikonPic(self,name):
         dir_path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))

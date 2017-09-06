@@ -270,9 +270,9 @@ class showApp(QWidget):
         self.comm.resetTimeout.emit()
         print("PyQt5 frame add click")
         self.button4.setIcon(self.Icon_frame)
-        self.movie.jumpToFrame(0)
-        self.moviee.show()
-        self.movie.start()
+        #self.movie.jumpToFrame(0)
+        #self.moviee.show()
+        #self.movie.start()
         self.ButtonsState(False)
         threading.Thread(target=self.frameSelect, args=[]).start()
 
@@ -280,13 +280,16 @@ class showApp(QWidget):
     def frameSelect(self):
         if self.editor.stat=="Original":
             self.pImg=self.editor.addFrame(self.base_dir+"/Resource/Image/frame.png")
+            pixmap = QPixmap(self.base_dir + "/Resource/Photo/edited.jpg")
+            pixmap = pixmap.scaledToWidth(self.width - 200)
         else:
-            self.pImg=self.editor.removeFrame()
-        pixmap = QPixmap(self.base_dir+"/Resource/Photo/show.jpg")
-        pixmap = pixmap.scaledToWidth(self.width - 200)
-        self.movie.stop()
-        self.moviee.hide()
-        self.movie.jumpToFrame(0)
+            pixmap = QPixmap(self.name)
+            pixmap = pixmap.scaledToWidth(self.width - 200)
+            self.editor.stat = "Original"
+            time.sleep(0.1)
+        #self.movie.stop()
+        #self.moviee.hide()
+        #self.movie.jumpToFrame(0)
         self.image.setPixmap(pixmap)
         self.ButtonsState(True)
         #Add part to add the Frame
