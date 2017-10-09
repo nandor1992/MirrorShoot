@@ -18,6 +18,7 @@ class IdleApp(QWidget):
         self.gif_timer=2600
         self.active=False
         comm.timeout.connect(self.begin)
+        self.base_dir=os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         if os.name == 'posix':
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -61,10 +62,10 @@ class IdleApp(QWidget):
         self.initScreen()
         #Add Gif
         self.moviee = QLabel(self)
-        self.movie = QMovie("../Resource/Gif/hello.gif")
+        self.movie = QMovie(self.base_dir+"/Resource/Gif/hello.gif")
         size = max(self.width, self.height) / 3
         self.movie.setScaledSize(self.scaleToWidth(size,self.movie))
-        self.movie2 = QMovie("../Resource/Gif/IdleGif.gif")
+        self.movie2 = QMovie(self.base_dir+"/Resource/Gif/IdleGif.gif")
         self.movie2.setScaledSize(self.scaleToWidth(size,self.movie2))
         self.moviee.setMovie(self.movie2)
         self.moviee.setAlignment(Qt.AlignCenter)

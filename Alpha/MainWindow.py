@@ -1,20 +1,12 @@
 import sys, os
 from PyQt5.QtWidgets import QMainWindow, QApplication, QStackedWidget, QDesktopWidget
 from PyQt5.QtCore import pyqtSignal, QObject, Qt, QTimer
-if sys.version_info >(3,5):
-    from Alpha.helloWidget import IdleApp
-    from Alpha.takePhotoWidget import PictureApp
-    from Alpha.menuWidget import MenuApp
-    from Alpha.showWidget import showApp
-    from Alpha.ListWidget import ListApp
-    from Alpha.IndiWidget import IndiApp
-else:
-    from helloWidget import IdleApp
-    from takePhotoWidget import PictureApp
-    from menuWidget import MenuApp
-    from showWidget import showApp
-    from ListWidget import ListApp
-    from IndiWidget import IndiApp
+from helloWidget import IdleApp
+from takePhotoWidget import PictureApp
+from menuWidget import MenuApp
+from showWidget import showApp
+from ListWidget import ListApp
+from IndiWidget import IndiApp
 
 class Communicate(QObject):
     resetTimeout = pyqtSignal()

@@ -18,6 +18,7 @@ class ListApp(QWidget):
         self.comm=comm
         self.comm.goToList.connect(self.begin)
         self.active=False
+        self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         self.images = {}
         self.initUI()
 

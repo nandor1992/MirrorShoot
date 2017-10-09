@@ -16,6 +16,7 @@ class MenuApp(QWidget):
         self.comm=comm
         self.comm.goToMain.connect(self.begin)
         self.active=False
+        self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         self.initUI()
 
     def initScreen(self):
@@ -42,7 +43,7 @@ class MenuApp(QWidget):
         # Button    border-width: 5px;padding: 5px;border-style:solid;border-radius: 5px
         self.button = QPushButton(self)
         self.Icon_photo_active=QIcon()
-        pixmap = QPixmap("../Resource/Image/take_pic.png")
+        pixmap = QPixmap(self.base_dir+"/Resource/Image/take_pic.png")
         pixmap = pixmap.scaledToWidth(self.width / 2)
         self.Icon_photo_active.addPixmap(pixmap,mode=QIcon.Disabled)
         self.Icon_photo_active.addPixmap(pixmap, mode=QIcon.Active)
@@ -56,7 +57,7 @@ class MenuApp(QWidget):
 
         self.button2 = QPushButton(self)
         self.Icon_back_active = QIcon()
-        pixmap2 = QPixmap("../Resource/Image/list_pic.png")
+        pixmap2 = QPixmap(self.base_dir+"/Resource/Image/list_pic.png")
         pixmap2 = pixmap2.scaledToWidth(self.width / 2)
         self.Icon_back_active.addPixmap(pixmap2, mode=QIcon.Disabled)
         self.Icon_back_active.addPixmap(pixmap2, mode=QIcon.Active)
@@ -73,7 +74,7 @@ class MenuApp(QWidget):
 
         self.button3 = QPushButton(self)
         self.Icon_back_exit = QIcon()
-        pixmap3 = QPixmap("../Resource/Image/off.png")
+        pixmap3 = QPixmap(self.base_dir+"/Resource/Image/off.png")
         size = max(self.width, self.height) / 6
         pixmap3 = pixmap3.scaledToWidth(size)
         self.Icon_back_exit.addPixmap(pixmap3, mode=QIcon.Disabled)
@@ -112,7 +113,7 @@ class MenuApp(QWidget):
     @pyqtSlot()
     def photo_pressed(self):
         print('PyQt5 button1 pressed')
-        self.button.setIcon(QIcon('../Resource/Image/take_pic_down.png'))
+        self.button.setIcon(QIcon(self.base_dir+"/Resource/Image/take_pic_down.png"))
 
     @pyqtSlot()
     def close_click(self):
@@ -124,7 +125,7 @@ class MenuApp(QWidget):
     @pyqtSlot()
     def close_pressed(self):
         print('PyQt5 button2 pressed')
-        self.button2.setIcon(QIcon('../Resource/Image/list_pic_down.png'))
+        self.button2.setIcon(QIcon(self.base_dir+"/Resource/Image/list_pic_down.png"))
 
     @pyqtSlot()
     def exit_click(self):
@@ -136,7 +137,7 @@ class MenuApp(QWidget):
     @pyqtSlot()
     def exit_pressed(self):
         print('PyQt5 button2 pressed')
-        self.button3.setIcon(QIcon('../Resource/Image/off_down.png'))
+        self.button3.setIcon(QIcon(self.base_dir+"/Resource/Image/off_down.png"))
 
 class Communicate(QObject):
     goToPicture = pyqtSignal()

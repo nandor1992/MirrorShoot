@@ -19,6 +19,7 @@ class PictureApp(QWidget):
         self.lastTrigger = time.time()
         self.comm=comm
         self.comm.goToPicture.connect(self.begin)
+        self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         self.active=False
         self.initUI()
 
@@ -38,7 +39,7 @@ class PictureApp(QWidget):
         self.Idle_timer=30000
         # Add image
         self.image = QLabel(self)
-        pixmap = QPixmap("../Resource/Photo/show.jpg")
+        pixmap = QPixmap(self.base_dir+"/Resource/Photo/show.jpg")
         pixmap.scaledToWidth(self.width*0.6)
         self.image.setPixmap(pixmap)
         self.image.mouseReleaseEvent=self.image_click
@@ -49,8 +50,8 @@ class PictureApp(QWidget):
         self.button = QPushButton(self)
         size = max(self.width, self.height) / 6
         self.Icon_photo_active=QIcon()
-        self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/photo.png'),mode=QIcon.Disabled)
-        self.Icon_photo_active.addPixmap(QPixmap('../Resource/Image/photo.png'), mode=QIcon.Active)
+        self.Icon_photo_active.addPixmap(QPixmap(self.base_dir+'/Resource/Image/photo.png'),mode=QIcon.Disabled)
+        self.Icon_photo_active.addPixmap(QPixmap(self.base_dir+'/Resource/Image/photo.png'), mode=QIcon.Active)
         self.button.setIcon(self.Icon_photo_active)
         self.button.setIconSize(QSize(size, size))
         self.button.setGeometry(
@@ -63,8 +64,8 @@ class PictureApp(QWidget):
         self.button2 = QPushButton(self)
         size = max(self.width, self.height) / 10
         self.Icon_back_active=QIcon()
-        self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'),mode=QIcon.Disabled)
-        self.Icon_back_active.addPixmap(QPixmap('../Resource/Image/back.png'), mode=QIcon.Active)
+        self.Icon_back_active.addPixmap(QPixmap(self.base_dir+'/Resource/Image/back.png'),mode=QIcon.Disabled)
+        self.Icon_back_active.addPixmap(QPixmap(self.base_dir+'/Resource/Image/back.png'), mode=QIcon.Active)
         self.button2.setIcon(self.Icon_back_active)
         self.button2.setIconSize(QSize(size, size))
         self.button2.setGeometry(
@@ -102,8 +103,8 @@ class PictureApp(QWidget):
 
     def addLoading(self):
         self.moviee = QLabel(self)
-        self.movie = QMovie("../Resource/Gif/load.gif")
-        self.movie2= QMovie("../Resource/Gif/countdown.gif")
+        self.movie = QMovie(self.base_dir+"/Resource/Gif/load.gif")
+        self.movie2= QMovie(self.base_dir+"/Resource/Gif/countdown.gif")
         size = max(self.width, self.height) / 5
         diff = max(self.width, self.height) / 12
         self.movie.setScaledSize(self.scaleToWidth(size,self.movie))
@@ -120,41 +121,12 @@ class PictureApp(QWidget):
         self.comm.resetTimeout.emit()
         if self.active:
             self.button2.setEnabled(False)
-            if os.name == 'posix':
-                camera = picamera.PiCamera()
-                camera.resolution = (2592, 1944)
-                name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".jpg"
-                camera.capture(name)
-                camera.close()
-                correctionVal = 0
-                img_file = Image.open(name)
-                width, height = img_file.size
-                img_file_white = Image.new("RGB", (width, height), "white")
-                img_blended = Image.blend(img_file, img_file_white, correctionVal)
-                img_blended.save("../Resource/Photo/show.jpg")
-            elif os.name =='nt':
-                name = "../Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
-                name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
-                self.takeNikonPic(name_pic)
-                correctionVal = 0
-                try:
-                    img_file = Image.open(name)
-                    img2=img_file.rotate(90,expand=True)
-                    #width, height = img_file.size
-                    #img_file_white = Image.new("RGB", (width, height), "white")
-                    #img_blended = Image.blend(img_file, img_file_white, correctionVal)
-                    img2.save("../Resource/Photo/show.jpg")
-                    img2.save(name)
-                except FileNotFoundError:
-                    print("Pic Not taken")
-            else:
-                time.sleep(2)
-            pixmap = QPixmap("../Resource/Photo/show.jpg")
+            name = self.base_dir+"/Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+            name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+            self.takeNikonPic(name_pic)
+            correctionVal = 0
             self.movie.stop()
             self.moviee.hide()
-            pixmap = pixmap.scaledToWidth(self.width*0.6)
-            self.image.setPixmap(pixmap)
-            self.image.show()
         self.button2.setEnabled(True)
         self.button.setEnabled(True)
         self.out()
@@ -164,7 +136,8 @@ class PictureApp(QWidget):
             self.comm.goToReview.emit(name)
         except:
             print("Error so no Next")
-            self.active=True
+            self.comm.goToReview.emit(self.base_dir+"/Resource/Photo/DSC_0235.jpg")
+            #self.active=True
 
     def takeNikonPic(self,name):
         dir_path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
@@ -206,12 +179,12 @@ class PictureApp(QWidget):
     @pyqtSlot()
     def photo_pressed(self):
         print('PyQt5 button1 pressed')
-        self.button.setIcon(QIcon('../Resource/Image/photo_down.png'))
+        self.button.setIcon(QIcon(self.base_dir+'/Resource/Image/photo_down.png'))
 
     @pyqtSlot()
     def close_pressed(self):
         print('PyQt5 button2 pressed')
-        self.button2.setIcon(QIcon('../Resource/Image/back_down.png'))
+        self.button2.setIcon(QIcon(self.base_dir+'/Resource/Image/back_down.png'))
 
     def gif_click(self, event):
         self.comm.resetTimeout.emit()

@@ -18,10 +18,7 @@ class Printer():
 
     def printPhoto(self,name):
         print("Started Processing Print: "+name)
-        img_file = Image.open(self.dir_path+name)
-        photo_view='"C:\Program Files\Windows Photo Viewer\PhotoViewer.dll"'
         cmd="rundll32.exe C:\WINDOWS\system32\shimgvw.dll ImageView_PrintTo /pt "+self.dir_path+name +" \""+self.printer_name+"\""
-        else1="/pt   "+self.dir_path+"print.jpg /print "+self.printer_name
         os.system(cmd)
         time.sleep(0.2)
         self.processingPrint()
