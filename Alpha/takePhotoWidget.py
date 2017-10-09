@@ -121,25 +121,10 @@ class PictureApp(QWidget):
         self.comm.resetTimeout.emit()
         if self.active:
             self.button2.setEnabled(False)
-            if os.name == 'posix':
-                camera = picamera.PiCamera()
-                camera.resolution = (2592, 1944)
-                name = self.base_dir+"/Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".jpg"
-                camera.capture(name)
-                camera.close()
-                correctionVal = 0
-                img_file = Image.open(name)
-                width, height = img_file.size
-                img_file_white = Image.new("RGB", (width, height), "white")
-                img_blended = Image.blend(img_file, img_file_white, correctionVal)
-                img_blended.save(self.base_dir+"/Resource/Photo/show.jpg")
-            elif os.name =='nt':
-                name = self.base_dir+"/Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
-                name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
-                self.takeNikonPic(name_pic)
-                correctionVal = 0
-            else:
-                time.sleep(2)
+            name = self.base_dir+"/Resource/Photo/Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+            name_pic="Picture_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".jpg"
+            self.takeNikonPic(name_pic)
+            correctionVal = 0
             self.movie.stop()
             self.moviee.hide()
         self.button2.setEnabled(True)

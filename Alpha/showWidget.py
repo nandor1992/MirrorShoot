@@ -1,7 +1,7 @@
 import sys, os
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget
-from PyQt5.QtGui import QIcon, QMovie, QPixmap
-from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer,QObject, pyqtSignal
+from PyQt5.QtGui import QIcon, QMovie, QPixmap, QCursor
+from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer,QObject, pyqtSignal, QPoint
 from tkinter import *
 import time
 import threading
@@ -21,6 +21,7 @@ class showApp(QWidget):
         self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         self.print=Printer()
         self.editor=Editor(self.base_dir+"/Resource/Photo/show.jpg")
+        self.add_pressed=False
         self.initUI()
 
     def initScreen(self):
@@ -29,9 +30,18 @@ class showApp(QWidget):
         if screen2.right()>0:
             self.width = screen2.right()-screen2.left()
             self.height = screen2.bottom()
+            self.screen2=True
+            self.screen2_diff=screen2.left()
         else:
+            self.screen2=False
             self.width = screen1.right()
             self.height = screen1.bottom()
+
+    def getAbsMouse(self):
+        if not self.screen2:
+            return [QCursor.pos().x(),QCursor.pos().x()]
+        else:
+            return [QCursor.pos().x()-self.screen2_diff , QCursor.pos().y()]
 
     def initUI(self):
         self.initScreen()
@@ -39,9 +49,9 @@ class showApp(QWidget):
         # Add image
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Photo/show.jpg")
-        pixmap.scaledToWidth(self.width - 200)
+        pixmap.scaledToWidth(self.width - 50)
         self.image.setGeometry(
-            QRect(100, 50, self.width - 100, self.height - 400))
+            QRect(25, 50, self.width - 25, self.height - 50))
         self.image.setPixmap(pixmap)
         self.image.hide()
 
@@ -62,7 +72,7 @@ class showApp(QWidget):
         self.button.setIcon(self.Icon_save)
         self.button.setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.button.setGeometry(
-            QRect(self.width / 4 - pixmap.width() / 2, self.height/7*6 - pixmap.height() - 20, pixmap.width() + 40,
+            QRect(25, self.height/10-pixmap.height()/2, pixmap.width() + 40,
                   pixmap.height() + 60))
         self.button.clicked.connect(self.save_click)
         self.button.pressed.connect(self.save_pressed)
@@ -78,7 +88,7 @@ class showApp(QWidget):
         self.button2.setIcon(self.Icon_print)
         self.button2.setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.button2.setGeometry(
-            QRect(self.width / 2 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 40,
+            QRect(25, self.height/10+pixmap.height()/2 + 25 , pixmap.width() + 40,
                   pixmap.height() + 60))
         self.button2.clicked.connect(self.print_click)
         self.button2.pressed.connect(self.print_pressed)
@@ -95,7 +105,7 @@ class showApp(QWidget):
         self.button3.setIcon(self.Icon_delete)
         self.button3.setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.button3.setGeometry(
-            QRect(self.width / 4 - pixmap.width() / 2, self.height/7*6 +20 , pixmap.width() + 40,
+            QRect(25, self.height/10+pixmap.height()/2*3 + 50, pixmap.width() + 40,
                   pixmap.height() + 60))
         self.button3.clicked.connect(self.delete_click)
         self.button3.pressed.connect(self.delete_pressed)
@@ -105,17 +115,35 @@ class showApp(QWidget):
         self.button4 = QPushButton(self)
         self.Icon_frame = QIcon()
         pixmap = QPixmap(self.base_dir+"/Resource/Image/frame_button.png")
-        pixmap = pixmap.scaledToWidth(self.width / 7)
+        pixmap = pixmap.scaledToWidth(self.width / 4)
         self.Icon_frame.addPixmap(pixmap, mode=QIcon.Disabled)
         self.Icon_frame.addPixmap(pixmap, mode=QIcon.Active)
         self.button4.setIcon(self.Icon_frame)
         self.button4.setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.button4.setGeometry(
-            QRect(self.width / 4*3 - pixmap.width() / 2, self.height/7*6 - pixmap.height()/2 , pixmap.width() + 40,
+            QRect(50, self.height - 75 - pixmap.height() , pixmap.width() + 40,
                   pixmap.height() + 60))
         self.button4.clicked.connect(self.frame_click)
         self.button4.pressed.connect(self.frame_pressed)
         self.button4.setStyleSheet(self.bstyle)
+
+        # Button    border-width: 5px;padding: 5px;border-style:solid;border-radius: 5px
+        self.button5 = QPushButton(self)
+        self.add_icon = QIcon()
+        pixmap = QPixmap(self.base_dir + "/Resource/Image/added.png")
+        pixmap = pixmap.scaledToWidth(self.width / 3.5)
+        self.add_pic_width=pixmap.width()
+        self.add_pic_height=pixmap.height()
+        self.add_icon.addPixmap(pixmap, mode=QIcon.Disabled)
+        self.add_icon.addPixmap(pixmap, mode=QIcon.Active)
+        self.button5.setIcon(self.add_icon)
+        self.button5.setIconSize(QSize(pixmap.width(), pixmap.height()))
+        self.button5.setGeometry(
+            QRect(self.width-50-pixmap.width(), self.height - 50 - pixmap.height(), pixmap.width() + 40,
+                  pixmap.height() + 60))
+        self.button5.clicked.connect(self.added_click)
+        self.button5.pressed.connect(self.added_pressed)
+        self.button5.setStyleSheet(self.bstyle)
         self.addLoading()
 
     def addLoading(self):
@@ -142,7 +170,7 @@ class showApp(QWidget):
         self.name=name
         self.editor=Editor(name)
         pixmap = QPixmap(name)
-        pixmap = pixmap.scaledToWidth(self.width - 200)
+        pixmap = pixmap.scaledToWidth(self.width - 50)
         self.image.setPixmap(pixmap)
         self.image.show()
         self.ButtonsState(True)
@@ -156,7 +184,6 @@ class showApp(QWidget):
 
     def goBack(self):
         print("Leaving Show Widget")
-        time.sleep(0.5)
         self.out()
         self.comm.goToPicture.emit()
 
@@ -164,7 +191,6 @@ class showApp(QWidget):
         time.sleep(1.5)
         print("Saving")
         self.textLabel.setGeometry(QRect(self.width / 2 - 60, self.height / 4, 350, 100))
-        self.textLabel.setText("Saved!")
         self.movie.stop()
         self.moviee.hide()
         self.movie.jumpToFrame(0)
@@ -174,8 +200,10 @@ class showApp(QWidget):
         time.sleep(1.5)
         print("Deleting "+self.name)
         self.textLabel.setGeometry(QRect(self.width / 2 - 150, self.height / 4, 350, 100))
-        os.remove(self.name)
-        self.textLabel.setText("Deleted!")
+        try:
+            os.remove(self.name)
+        except:
+            print("Exception Happend when Deleting: "+str(sys.exc_info()[0]))
         self.movie.stop()
         self.moviee.hide()
         self.movie.jumpToFrame(0)
@@ -299,11 +327,37 @@ class showApp(QWidget):
         print('PyQt5 frame add pressed')
         self.button4.setIcon(QIcon(self.base_dir+"/Resource/Image/frame_button_down.png"))
 
+    @pyqtSlot()
+    def added_click(self):
+        #self.comm.resetTimeout.emit()
+        print("PyQt5 Added click")
+        self.button5.setIcon(self.add_icon)
+        self.add_pressed=False
+
+    @pyqtSlot()
+    def added_pressed(self):
+        print('PyQt5 frame add pressed')
+        self.button5.setIcon(QIcon(self.base_dir+"/Resource/Image/added_down.png"))
+        self.add_pressed = True
+        threading.Thread(target=self.Move_picture).start()
+            #self.setPos(event.scenePos() - QPoint(self.width / 2, self.height / 2))
+
+    def Move_picture(self):
+        while self.add_pressed:
+            cursor=self.getAbsMouse()
+            print(str(cursor))
+            print("Moving")
+            self.button5.setGeometry(
+                QRect(cursor[0]-self.add_pic_width/2-20, cursor[1]- self.add_pic_height/2-30, self.add_pic_width + 40,
+                  self.add_pic_height + 60))
+
     def ButtonsState(self,value):
         self.button.setEnabled(value)
         self.button2.setEnabled(value)
         self.button3.setEnabled(value)
         self.button4.setEnabled(value)
+        self.button5.setEnabled(value)
+
 class Communicate(QObject):
     goToPicture = pyqtSignal()
     goToMain = pyqtSignal()
