@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QMainWindow,QDesktopWidget, QAction,QMenuBar,QScrollArea
 from PyQt5.QtGui import QIcon, QMovie, QPixmap, QCursor
 from PyQt5.QtCore import pyqtSlot, QSize, QRect, Qt, QTimer,QObject, pyqtSignal, QPoint
 from tkinter import *
@@ -9,6 +9,10 @@ import datetime
 from PIL import Image
 from Printer import Printer
 from PhotoEdit import Editor
+from os.path import isfile, join
+
+from PyQt5.QtWidgets import QGridLayout
+
 
 class showApp(QWidget):
     def __init__(self,parent,comm):
@@ -49,11 +53,20 @@ class showApp(QWidget):
         # Add image
         self.image = QLabel(self)
         pixmap = QPixmap("../Resource/Photo/show.jpg")
-        pixmap.scaledToWidth(self.width - 50)
+        pixmap=pixmap.scaledToWidth(self.width - 50)
         self.image.setGeometry(
-            QRect(25, 50, self.width - 25, self.height - 50))
+            QRect(25, 50, self.width - 25, self.height - 350))
         self.image.setPixmap(pixmap)
         self.image.hide()
+
+        self.frame = QLabel(self)
+        pixmap = QPixmap("../Resource/Image/frame.png")
+        pixmap=pixmap.scaledToWidth(self.width - 50)
+        self.frame.setGeometry(
+            QRect(25, 50, self.width - 25, self.height - 350))
+        self.frame.setPixmap(pixmap)
+        self.frame.setStyleSheet("QLabel{background: transparent;outline: none;border: none;}")
+        self.frame.hide()
 
         self.textLabel = QLabel(self)
         self.textLabel.setText("...Nothing")
@@ -144,7 +157,189 @@ class showApp(QWidget):
         self.button5.clicked.connect(self.added_click)
         self.button5.pressed.connect(self.added_pressed)
         self.button5.setStyleSheet(self.bstyle)
+
+        # Button    border-width: 5px;padding: 5px;border-style:solid;border-radius: 5px
+        self.button6 = QPushButton(self)
+        self.edit_icon = QIcon()
+        pixmap = QPixmap(self.base_dir + "/Resource/Image/edit.png")
+        pixmap = pixmap.scaledToWidth(self.width / 5)
+        self.edit_icon.addPixmap(pixmap, mode=QIcon.Disabled)
+        self.edit_icon.addPixmap(pixmap, mode=QIcon.Active)
+        self.button6.setIcon(self.edit_icon)
+        self.button6.setIconSize(QSize(pixmap.width(), pixmap.height()))
+        self.button6.setGeometry(
+            QRect(self.width-50-pixmap.width(), 50 , pixmap.width() + 40,
+                  pixmap.height() + 60))
+        self.button6.clicked.connect(self.edit_click)
+        self.button6.pressed.connect(self.edit_pressed)
+        self.button6.setStyleSheet(self.bstyle)
+        self.button6.hide()
+
+        self.tab1 = QScrollArea(self)
+        self.tab1.setStyleSheet("QScrollArea{background: transparent;outline: 2px;border: 2px}" +
+                                "QScrollBar:vertical{width: 0px; background: transparent;}")
+        self.tab1.setGeometry(QRect(250, 200, self.width - 280, self.height-200-400))
+        self.tab1.setWidgetResizable(True)
+
+        #Add Delete Grow and Shring, but delete first
+        # Add Delete
+        self.del_emoji = QLabel(self)
+        self.del_emoji.setAlignment(Qt.AlignCenter)
+        pixmap = QPixmap("../Resource/Image/delete.png")
+        pixmap=pixmap.scaledToWidth(self.width / 4)
+        self.del_emoji.setGeometry(QRect(0, self.height - 50 - pixmap.height(), self.width,
+                  pixmap.height() + 50))
+        self.del_emoji.setStyleSheet(
+            "QLabel{background-color: rgba(255, 255, 255, 30);}")
+        self.del_emoji.setPixmap(pixmap)
+        self.del_emoji.hide()
+
+        # Add Zoom
+        self.zoom_emoji = QLabel(self)
+        self.zoom_emoji.setAlignment(Qt.AlignCenter)
+        pixmap = QPixmap("../Resource/Image/zoom.png")
+        pixmap = pixmap.scaledToWidth(self.width / 4)
+        self.zoom_emoji.setGeometry(QRect(self.width-pixmap.width()-20, self.height/2 - pixmap.height()+20, pixmap.width()+20,
+                                         pixmap.height()+20))
+        self.zoom_emoji.setStyleSheet(
+            "QLabel{background-color: rgba(255, 255, 255, 40);}")
+        self.zoom_emoji.setPixmap(pixmap)
+        self.zoom_emoji.hide()
+
+        self.add_emojis()
+
         self.addLoading()
+
+    def add_emojis(self):
+        self.images={}
+        self.tab1_w = QWidget()
+        self.tab1_w.setStyleSheet(
+            "QWidget{background-color: rgba(255, 255, 255, 40);}")
+        self.tab1_layout = QGridLayout()
+        self.tab1_w.setLayout(self.tab1_layout)
+        # self.setWidgetResizable(True)
+        onlyfiles = [f for f in os.listdir("../Resource/Image/Emoji")]
+        cnt = 0;
+        self.emojis={}
+        self.image_names={}
+        self.e_cnt=0;
+        self.add_pressed={}
+        self.emoji_size={}
+        self.images_list = onlyfiles
+        for i in onlyfiles:
+            self.images[i] = QLabel(self)
+            pixmap = QPixmap("../Resource/Image/Emoji/" + i)
+            pixmap = pixmap.scaledToWidth((self.width - 140) / 5)
+            self.emoji_width=pixmap.width()
+            self.emoji_height=pixmap.height()
+            self.images[i].setPixmap(pixmap)
+            self.images[i].mouseReleaseEvent = lambda event, arg=i: self.image_click(arg)
+            self.tab1_layout.addWidget(self.images[i], int(cnt / 4), int(divmod(cnt, 4)[1]))
+            cnt += 1
+        self.tab1.setWidget(self.tab1_w)
+        self.tab1.hide()
+
+    def image_click(self,i):
+        self.comm.resetTimeout.emit()
+        print("Clicked"+str(i))
+        self.tab1.hide()
+        self.alterButtons("hide")
+        self.emojis[self.e_cnt]=QPushButton(self)
+        pixmap = QPixmap(self.base_dir + "/Resource/Image/Emoji/"+i)
+        pixmap = pixmap.scaledToWidth((self.width - 140) / 5)
+        icon=QIcon()
+        icon.addPixmap(pixmap, mode=QIcon.Disabled)
+        self.image_names[self.e_cnt]=i
+        self.emojis[self.e_cnt].setIcon(icon)
+        self.emojis[self.e_cnt].setIconSize(QSize(pixmap.width(), pixmap.height()))
+        self.emojis[self.e_cnt].setGeometry(
+            QRect(self.width/2 - pixmap.width()/2-20, self.height/2 - pixmap.height()/2-20, pixmap.width()+20,
+                  pixmap.height()+20))
+        self.emojis[self.e_cnt].mousePressEvent = lambda event, arg=self.e_cnt: self.emoji_press(arg)
+        self.emojis[self.e_cnt].mouseReleaseEvent = lambda event, arg=self.e_cnt: self.emoji_release(arg)
+        self.emojis[self.e_cnt].setStyleSheet(self.bstyle)
+        self.emojis[self.e_cnt].show()
+        self.emoji_size[self.e_cnt] = 1.0
+        self.add_pressed[self.e_cnt]=False
+        self.e_cnt += 1
+
+    def alterButtons(self,hide):
+        if hide=="show":
+            self.button.show()
+            self.button.raise_()
+            self.button2.show()
+            self.button2.raise_()
+            self.button3.show()
+            self.button3.raise_()
+            self.button4.show()
+            self.button4.raise_()
+            self.button5.show()
+            self.button5.raise_()
+            if len(self.emojis)!=0:
+                self.button6.show()
+                self.button6.raise_()
+            self.del_emoji.hide()
+            self.zoom_emoji.hide()
+        else:
+            self.del_emoji.show()
+            self.zoom_emoji.show()
+            self.button.hide()
+            self.button2.hide()
+            self.button3.hide()
+            self.button4.hide()
+            self.button5.hide()
+            self.button6.hide()
+
+    def emoji_press(self,i):
+        try:
+            self.alterButtons("hide")
+            print("Pressed"+str(i))
+            self.add_pressed[i] = True
+            threading.Thread(target=self.Move_picture, kwargs={'cnt':i}).start()
+        except:
+            print("Error:"+str(sys.exc_info()[0]))
+
+    def emoji_release(self,i):
+        self.comm.resetTimeout.emit()
+        print("Released" + str(i))
+        self.add_pressed[i] = False
+        cursor = self.getAbsMouse()
+        if cursor[1] > self.height - 220:
+            self.emojis[i].hide()
+            del self.emojis[i]
+            self.alterButtons("show")
+        if (cursor[0] > self.width - self.width / 4 + 50) and (cursor[1] < self.height / 2) and (cursor[1] > self.height / 4):
+            if cursor[1] > self.height / 8*3:
+                if self.emoji_size[i]>0.4:
+                    self.emoji_size[i]=self.emoji_size[i]*0.9
+            else:
+                if self.emoji_size[i] <3:
+                # between a and c  - > Zooom
+                    self.emoji_size[i] = self.emoji_size[i] * 1.1
+
+            pixmap = QPixmap(self.base_dir + "/Resource/Image/Emoji/"+self.image_names[i])
+            pixmap = pixmap.scaledToWidth((self.width - 140) / 5*self.emoji_size[i])
+            icon = QIcon()
+            icon.addPixmap(pixmap, mode=QIcon.Disabled)
+            self.emojis[i].setIcon(icon)
+            self.emojis[i].setIconSize(QSize(pixmap.width(), pixmap.height()))
+            self.emojis[i].setGeometry(
+                QRect(cursor[0] - pixmap.width()/2-20, cursor[1] - pixmap.height()/2 -30,
+                      pixmap.width() + 40,
+                      pixmap.height() + 60))
+            self.emojis[i].show()
+        else:
+            self.alterButtons("show")
+
+    def Move_picture(self,cnt):
+        while self.add_pressed[cnt]:
+            try:
+                cursor=self.getAbsMouse()
+                self.emojis[cnt].setGeometry(
+                QRect(cursor[0]-self.emoji_width/2*self.emoji_size[cnt]-20, cursor[1]- self.emoji_height/2*self.emoji_size[cnt]-30, self.emoji_width*self.emoji_size[cnt] + 40,
+                    self.emoji_height*self.emoji_size[cnt] + 60))
+            except:
+                pass
 
     def addLoading(self):
         self.moviee = QLabel(self)
@@ -208,7 +403,6 @@ class showApp(QWidget):
         self.moviee.hide()
         self.movie.jumpToFrame(0)
         threading.Thread(target=self.goBack).start()
-
 
     @pyqtSlot()
     def print_click(self):
@@ -298,29 +492,10 @@ class showApp(QWidget):
         self.comm.resetTimeout.emit()
         print("PyQt5 frame add click")
         self.button4.setIcon(self.Icon_frame)
-        #self.movie.jumpToFrame(0)
-        #self.moviee.show()
-        #self.movie.start()
-        self.ButtonsState(False)
-        threading.Thread(target=self.frameSelect, args=[]).start()
-
-
-    def frameSelect(self):
-        if self.editor.stat=="Original":
-            self.pImg=self.editor.addFrame(self.base_dir+"/Resource/Image/frame.png")
-            pixmap = QPixmap(self.base_dir + "/Resource/Photo/edited.jpg")
-            pixmap = pixmap.scaledToWidth(self.width - 200)
+        if self.frame.isHidden():
+            self.frame.show()
         else:
-            pixmap = QPixmap(self.name)
-            pixmap = pixmap.scaledToWidth(self.width - 200)
-            self.editor.stat = "Original"
-            time.sleep(0.1)
-        #self.movie.stop()
-        #self.moviee.hide()
-        #self.movie.jumpToFrame(0)
-        self.image.setPixmap(pixmap)
-        self.ButtonsState(True)
-        #Add part to add the Frame
+            self.frame.hide()
 
     @pyqtSlot()
     def frame_pressed(self):
@@ -329,27 +504,32 @@ class showApp(QWidget):
 
     @pyqtSlot()
     def added_click(self):
-        #self.comm.resetTimeout.emit()
+        self.comm.resetTimeout.emit()
         print("PyQt5 Added click")
         self.button5.setIcon(self.add_icon)
-        self.add_pressed=False
+        if self.tab1.isHidden():
+            self.tab1.show()
+            self.tab1.raise_()
+        else:
+            self.tab1.hide()
+        #self.add_pressed=False
 
     @pyqtSlot()
     def added_pressed(self):
         print('PyQt5 frame add pressed')
         self.button5.setIcon(QIcon(self.base_dir+"/Resource/Image/added_down.png"))
-        self.add_pressed = True
-        threading.Thread(target=self.Move_picture).start()
-            #self.setPos(event.scenePos() - QPoint(self.width / 2, self.height / 2))
 
-    def Move_picture(self):
-        while self.add_pressed:
-            cursor=self.getAbsMouse()
-            print(str(cursor))
-            print("Moving")
-            self.button5.setGeometry(
-                QRect(cursor[0]-self.add_pic_width/2-20, cursor[1]- self.add_pic_height/2-30, self.add_pic_width + 40,
-                  self.add_pic_height + 60))
+    @pyqtSlot()
+    def edit_click(self):
+        self.comm.resetTimeout.emit()
+        self.button6.setIcon(self.edit_icon)
+        self.alterButtons("hide")
+
+    @pyqtSlot()
+    def edit_pressed(self):
+        print('PyQt5 frame add pressed')
+        self.button6.setIcon(QIcon(self.base_dir+"/Resource/Image/edit_down.png"))
+
 
     def ButtonsState(self,value):
         self.button.setEnabled(value)
@@ -384,5 +564,8 @@ class App(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())
+    try:
+        ex = App()
+        sys.exit(app.exec_())
+    except:
+        print("Error:" + str(sys.exc_info()[0]))
