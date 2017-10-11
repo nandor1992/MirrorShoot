@@ -24,7 +24,6 @@ class showApp(QWidget):
         self.active=False
         self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
         self.print=Printer()
-        self.editor=Editor(self.base_dir+"/Resource/Photo/show.jpg")
         self.add_pressed=False
         self.initUI()
 
@@ -37,6 +36,7 @@ class showApp(QWidget):
             self.screen2=True
             self.screen2_diff=screen2.left()
         else:
+            self.screen2_diff=0
             self.screen2=False
             self.width = screen1.right()
             self.height = screen1.bottom()
@@ -55,9 +55,12 @@ class showApp(QWidget):
         pixmap = QPixmap("../Resource/Photo/show.jpg")
         pixmap=pixmap.scaledToWidth(self.width - 50)
         self.image.setGeometry(
-            QRect(25, 50, self.width - 25, self.height - 350))
+            QRect(25, 50, self.width - 50, self.height - 350))
         self.image.setPixmap(pixmap)
+        self.image.setAlignment(Qt.AlignTop)
+        self.image.setAlignment(Qt.AlignLeft)
         self.image.hide()
+        self.editor=Editor(self.base_dir+"/Resource/Photo/show.jpg",[pixmap.width(),pixmap.height()],(self.width - 140) / 5)
 
         self.frame = QLabel(self)
         pixmap = QPixmap("../Resource/Image/frame.png")
@@ -240,7 +243,7 @@ class showApp(QWidget):
         self.tab1.hide()
 
     def image_click(self,i):
-        self.comm.resetTimeout.emit()
+        #self.comm.resetTimeout.emit()
         print("Clicked"+str(i))
         self.tab1.hide()
         self.alterButtons("hide")
@@ -253,8 +256,8 @@ class showApp(QWidget):
         self.emojis[self.e_cnt].setIcon(icon)
         self.emojis[self.e_cnt].setIconSize(QSize(pixmap.width(), pixmap.height()))
         self.emojis[self.e_cnt].setGeometry(
-            QRect(self.width/2 - pixmap.width()/2-20, self.height/2 - pixmap.height()/2-20, pixmap.width()+20,
-                  pixmap.height()+20))
+            QRect(self.width/2 - pixmap.width()/2, self.height/2 - pixmap.height()/2, pixmap.width(),
+                  pixmap.height()))
         self.emojis[self.e_cnt].mousePressEvent = lambda event, arg=self.e_cnt: self.emoji_press(arg)
         self.emojis[self.e_cnt].mouseReleaseEvent = lambda event, arg=self.e_cnt: self.emoji_release(arg)
         self.emojis[self.e_cnt].setStyleSheet(self.bstyle)
@@ -300,7 +303,7 @@ class showApp(QWidget):
             print("Error:"+str(sys.exc_info()[0]))
 
     def emoji_release(self,i):
-        self.comm.resetTimeout.emit()
+        #self.comm.resetTimeout.emit()
         print("Released" + str(i))
         self.add_pressed[i] = False
         cursor = self.getAbsMouse()
@@ -339,7 +342,7 @@ class showApp(QWidget):
                 QRect(cursor[0]-self.emoji_width/2*self.emoji_size[cnt]-20, cursor[1]- self.emoji_height/2*self.emoji_size[cnt]-30, self.emoji_width*self.emoji_size[cnt] + 40,
                     self.emoji_height*self.emoji_size[cnt] + 60))
             except:
-                pass
+                print("Error:" + str(sys.exc_info()[0]))
 
     def addLoading(self):
         self.moviee = QLabel(self)
@@ -363,7 +366,7 @@ class showApp(QWidget):
     def begin(self,name):
         self.active=True
         self.name=name
-        self.editor=Editor(name)
+        self.editor.update(name)
         pixmap = QPixmap(name)
         pixmap = pixmap.scaledToWidth(self.width - 50)
         self.image.setPixmap(pixmap)
@@ -406,6 +409,7 @@ class showApp(QWidget):
 
     @pyqtSlot()
     def print_click(self):
+        self.addExtras()
         self.comm.resetTimeout.emit()
         print("PyQt5 button1 click")
         self.button2.setIcon(self.Icon_print)
@@ -435,23 +439,10 @@ class showApp(QWidget):
         print('PyQt5 button1 pressed')
         self.button2.setIcon(QIcon(self.base_dir+"/Resource/Image/print_down.png"))
 
-    def print_photo(self,name):
-        self.print.printPhoto(name)
-        self.textLabel.setGeometry(QRect(self.width / 2 - 150, self.height / 4, 350, 100))
-        self.textLabel.setText("Printed!")
-        #Add part wit hactuall printing of photo
-        print("Leaving Show Widget")
-        time.sleep(0.5)
-        self.goBack()
-
-    @pyqtSlot()
-    def print_pressed(self):
-        print('PyQt5 button1 pressed')
-        self.button2.setIcon(QIcon(self.base_dir+"/Resource/Image/print_down.png"))
-
     @pyqtSlot()
     def save_click(self):
-        self.comm.resetTimeout.emit()
+        self.addExtras()
+       # self.comm.resetTimeout.emit()
         print("PyQt5 button1 click")
         self.button.setIcon(self.Icon_save)
         self.ButtonsState(False)
@@ -467,6 +458,23 @@ class showApp(QWidget):
     def save_pressed(self):
         print('PyQt5 button1 pressed')
         self.button.setIcon(QIcon(self.base_dir+"/Resource/Image/save_down.png"))
+
+    def addExtras(self):
+        try:
+            eName={}
+            eSize={}
+            ePos={}
+            if not self.frame.isHidden():
+                self.editor.addFrame(self.base_dir+"/Resource/Image/Frames/frame.png")
+            for e in self.emojis:
+                eName[e]=self.image_names[e]
+                eSize[e]=self.emoji_size[e]
+                rect=self.emojis[e].pos()
+                ePos[e]=[rect.x(),rect.y()]
+            if len(eName)!=0:
+                self.editor.addEmojis(eName,eSize,ePos)
+        except:
+            print("Error:" + str(sys.exc_info()))
 
     @pyqtSlot()
     def delete_click(self):
@@ -489,7 +497,7 @@ class showApp(QWidget):
 
     @pyqtSlot()
     def frame_click(self):
-        self.comm.resetTimeout.emit()
+        #self.comm.resetTimeout.emit()
         print("PyQt5 frame add click")
         self.button4.setIcon(self.Icon_frame)
         if self.frame.isHidden():
@@ -504,7 +512,7 @@ class showApp(QWidget):
 
     @pyqtSlot()
     def added_click(self):
-        self.comm.resetTimeout.emit()
+        #self.comm.resetTimeout.emit()
         print("PyQt5 Added click")
         self.button5.setIcon(self.add_icon)
         if self.tab1.isHidden():
@@ -564,8 +572,5 @@ class App(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    try:
-        ex = App()
-        sys.exit(app.exec_())
-    except:
-        print("Error:" + str(sys.exc_info()[0]))
+    ex = App()
+    sys.exit(app.exec_())
